@@ -1,8 +1,10 @@
 package edu.uw.cs.cse461.sp12.OS;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -62,7 +64,32 @@ public class RPCCallerSocket extends Socket {
 	 */
 	public JSONObject invoke(String service, String method, JSONObject userRequest) {
 		//TODO: implement
+		try {
+			OutputStream mOs = getOutputStream();
+			String outputStream = generateJsonMessage(service, method, userRequest);
+			System.out.println(outputStream);
+//			mOs.write()
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return null;
+	}
+
+	private String generateJsonMessage(String service, String method, JSONObject userRequest) {
+		JSONObject messageJ = new JSONObject();
+		try {
+			messageJ.put("id", "1");
+			messageJ.put("app", service);
+			messageJ.put("args", userRequest);
+			messageJ.put("host", "cse461");
+			messageJ.put("type", "invoke");
+			messageJ.put("method", method);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return messageJ.toString();
 	}
 	
 }
