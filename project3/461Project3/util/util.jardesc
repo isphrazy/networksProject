@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <jardesc>
-    <jar path="/hddhome/zahorjan/courses/cse461/12sp/projectFiles/solutionFiles/lib/util.jar"/>
+    <jar path="/mnt/hgfs/f/study/UniversityOfWashington/cse/461/project/project/project3/461Project3/lib/util.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/util/util.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
@@ -12,7 +12,7 @@
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
         <javaElement handleIdentifier="=util/src"/>
-        <file path="/util/.classpath"/>
         <file path="/util/.project"/>
+        <file path="/util/.classpath"/>
     </selectedElements>
 </jardesc>
