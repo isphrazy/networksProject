@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="/mnt/hgfs/f/study/UniversityOfWashington/cse/461/project/project/project3/461Project3/lib/OSConsoleApps.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/OSConsoleApps/OSConsoleApps.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <javaElement handleIdentifier="=OSConsoleApps/src"/>
+        <javaElement handleIdentifier="=OSConsoleApps/OSSource"/>
+        <javaElement handleIdentifier="=OSConsoleApps/utilSource"/>
+    </selectedElements>
+</jardesc>
