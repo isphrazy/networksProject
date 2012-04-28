@@ -50,12 +50,12 @@ public class RPCCallerSocket extends Socket {
 		tcpHandler = new TCPMessageHandler(this);
 		try {
 			do{
-				msgId += 1;
+				msgId ++;
 				String handShakeMessage = createHandShakeJsonMessage();
-				System.out.println(handShakeMessage);
+//				System.out.println(handShakeMessage);
 				tcpHandler.sendMessage(handShakeMessage);
 				respond = tcpHandler.readMessageAsString();
-			}while(checkStatus(respond));
+			}while(!checkStatus(respond));
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
@@ -69,6 +69,7 @@ public class RPCCallerSocket extends Socket {
 	@Override
 	public void close() {
 		//TODO: implement
+		tcpHandler.discard();
 	}
 	
 	/**
@@ -88,16 +89,16 @@ public class RPCCallerSocket extends Socket {
 	 */
 	public JSONObject invoke(String service, String method, JSONObject userRequest) {
 		//TODO: implement
-		System.out.println("start invoking");
+//		System.out.println("start invoking");
 		String outputStream = generateJsonMessage(service, method, userRequest);
-		System.out.println(outputStream);
+//		System.out.println(outputStream);
 		String respond = null;
 		try {
 			do{
-				msgId += 1;
+				msgId ++;
 				tcpHandler.sendMessage(outputStream);
 				respond = tcpHandler.readMessageAsString();
-			}while(checkStatus(respond));
+			}while(!checkStatus(respond));
 			return new JSONObject(respond).getJSONObject("value");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -107,7 +108,7 @@ public class RPCCallerSocket extends Socket {
 		return null;
 	}
 
-	
+	//create json string based on the info given
 	private String generateJsonMessage(String service, String method, JSONObject userRequest) {
 		JSONObject messageJ = new JSONObject();
 		try {
@@ -124,6 +125,7 @@ public class RPCCallerSocket extends Socket {
 		return messageJ.toString();
 	}
 	
+	//create json string for handshanking
 	private String createHandShakeJsonMessage() {
 		JSONObject handShakeJ = new JSONObject();
 		try {
@@ -137,6 +139,7 @@ public class RPCCallerSocket extends Socket {
 		return handShakeJ.toString();
 	}
 	
+	//check respond status
 	private boolean checkStatus(String respond) throws JSONException{
 		if(respond == null) return false;
 		return new JSONObject(respond).getString("type").equals("OK");
