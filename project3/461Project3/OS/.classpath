@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="utilSrc"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="/mnt/hgfs/f/study/UniversityOfWashington/cse/461/project/project/project3/461Project3/lib/commons-cli-1.2.jar"/>
-	<classpathentry kind="lib" path="/mnt/hgfs/f/study/UniversityOfWashington/cse/461/project/project/project3/461Project3/lib/org.json.jar"/>
+	<classpathentry kind="lib" path="/Users/JimmyC/Documents/University_of_Washington/Computer_Science_Engineering/CSE 461/461projects/project3/461Project3/lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="/Users/JimmyC/Documents/University_of_Washington/Computer_Science_Engineering/CSE 461/461projects/project3/461Project3/lib/org.json.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

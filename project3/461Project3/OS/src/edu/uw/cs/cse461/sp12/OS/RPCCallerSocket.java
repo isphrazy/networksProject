@@ -1,8 +1,6 @@
 package edu.uw.cs.cse461.sp12.OS;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 
 import org.json.JSONException;
@@ -23,8 +21,6 @@ public class RPCCallerSocket extends Socket {
 	private final String HOST_JSON = "cse461";
 	
 	private String mRemoteHost;
-	private OutputStream mOs;
-	private InputStream mIs;
 	private int msgId;
 	private TCPMessageHandler tcpHandler;
 	
@@ -98,7 +94,7 @@ public class RPCCallerSocket extends Socket {
 				msgId ++;
 				tcpHandler.sendMessage(outputStream);
 				respond = tcpHandler.readMessageAsString();
-			}while(!checkStatus(respond));
+			} while(!checkStatus(respond));
 			return new JSONObject(respond).getJSONObject("value");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -121,11 +117,10 @@ public class RPCCallerSocket extends Socket {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
 		return messageJ.toString();
 	}
 	
-	//create json string for handshanking
+	//create json string for handshaking
 	private String createHandShakeJsonMessage() {
 		JSONObject handShakeJ = new JSONObject();
 		try {

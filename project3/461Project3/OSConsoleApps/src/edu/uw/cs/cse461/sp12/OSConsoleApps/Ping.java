@@ -1,23 +1,65 @@
 package edu.uw.cs.cse461.sp12.OSConsoleApps;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.*;
+
+import org.json.JSONObject;
+
+import edu.uw.cs.cse461.sp12.OS.RPCCallerSocket;
+import edu.uw.cs.cse461.sp12.util.Log;
+
 public class Ping implements OSConsoleApp {
-
-	@Override
+	// I'm using the android-like Log.x() functions for debugging output, even for console apps
+	private static final String TAG="PingConsole";
+		
+	public Ping() {
+	}
+	
 	public String appname() {
-		// TODO Auto-generated method stub
-		return null;
+		return "ping";
 	}
 
-	@Override
-	public void run() throws Exception {
-		// TODO Auto-generated method stub
+	public void run() {
+		try {
+			// Eclipse doesn't support System.console()
+			//List<Double> pingTimes = new ArrayList<Double>();
+			BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+			System.out.println("Enter lines like <target> <msg> to have <msg> echoed back");
+			while ( true ) {
+				try {
+					System.out.print("Enter a host ip, or exit to exit: ");
+					String targetIP = console.readLine();
+					if ( targetIP == null ) targetIP = "";
+					else if ( targetIP.equals("exit")) break;
 
+					System.out.print("Enter the RPC port, or empty line to exit: ");
+					String targetPort = console.readLine();
+					if ( targetPort == null || targetPort.isEmpty() ) continue;
+					
+					
+					RPCCallerSocket socket = null;
+					for (int i = 1; i <= 5 ; i++) {
+						long startTime = System.nanoTime();
+						//if (socket == null)
+							socket = new RPCCallerSocket(targetIP, targetIP, targetPort);
+						JSONObject response = socket.invoke("echo", "echo", new JSONObject().put("msg", "") );
+						long endTime = System.nanoTime();
+						//pingTimes.add((double) (endTime - startTime) / 1000000000.0);
+						double timeTaken = (double) (endTime - startTime) / 1000000000.0;
+						System.out.println("Test " + i + ": IP=" + targetIP + " host=" + targetPort + " time="
+								+ timeTaken + " seconds");
+					}
+				} catch (Exception e) {
+					System.out.println("Exception: " + e.getMessage());
+				}
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "PingConsole.run() caught exception: " +e.getMessage());
+		}
 	}
 
-	@Override
-	public void shutdown() throws Exception {
-		// TODO Auto-generated method stub
-
+	public void shutdown() {
 	}
 
 }
