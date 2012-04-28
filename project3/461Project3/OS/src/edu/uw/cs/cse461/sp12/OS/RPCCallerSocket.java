@@ -1,11 +1,14 @@
 package edu.uw.cs.cse461.sp12.OS;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import edu.uw.cs.cse461.sp12.util.TCPMessageHandler;
 
 /**
  * Implements a Socket to use in sending remote RPC invocations.  (It must engage
@@ -17,10 +20,13 @@ public class RPCCallerSocket extends Socket {
 	// This variable is part of the android Log.x idiom, as in Log.v(TAG, "some debugging log message")
 	// You can use Log.x in console apps as well.
 	private static final String TAG = "RPCCallerSocket";
-	private final String host = "cse461";
+	private final String HOST_JSON = "cse461";
 	
 	private String mRemoteHost;
 	private OutputStream mOs;
+	private InputStream mIs;
+	private int msgId;
+	private TCPMessageHandler tcpHandler;
 	
 	/**
 	 * Create a socket for sending RPC invocations, connecting it to the specified remote ip and port.
@@ -39,9 +45,23 @@ public class RPCCallerSocket extends Socket {
 		this.setSoTimeout(rpcTimeout);
 		
 		//TODO: implement
-		mOs = getOutputStream();
-		createHandShakeJsonMessage();
+		msgId = 0;
+		String respond = null;
+		tcpHandler = new TCPMessageHandler(this);
+		try {
+			do{
+				msgId += 1;
+				String handShakeMessage = createHandShakeJsonMessage();
+				System.out.println(handShakeMessage);
+				tcpHandler.sendMessage(handShakeMessage);
+				respond = tcpHandler.readMessageAsString();
+			}while(checkStatus(respond));
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
 	}
+	
 	
 	/**
 	 * Close this socket.
@@ -68,19 +88,33 @@ public class RPCCallerSocket extends Socket {
 	 */
 	public JSONObject invoke(String service, String method, JSONObject userRequest) {
 		//TODO: implement
+		System.out.println("start invoking");
 		String outputStream = generateJsonMessage(service, method, userRequest);
-//			System.out.println(outputStream);
-//			mOs.write()
+		System.out.println(outputStream);
+		String respond = null;
+		try {
+			do{
+				msgId += 1;
+				tcpHandler.sendMessage(outputStream);
+				respond = tcpHandler.readMessageAsString();
+			}while(checkStatus(respond));
+			return new JSONObject(respond).getJSONObject("value");
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 
+	
 	private String generateJsonMessage(String service, String method, JSONObject userRequest) {
 		JSONObject messageJ = new JSONObject();
 		try {
-			messageJ.put("id", "1");
+			messageJ.put("id", msgId);
 			messageJ.put("app", service);
 			messageJ.put("args", userRequest);
-			messageJ.put("host", "cse461");
+			messageJ.put("host", HOST_JSON);
 			messageJ.put("type", "invoke");
 			messageJ.put("method", method);
 		} catch (JSONException e) {
@@ -90,16 +124,22 @@ public class RPCCallerSocket extends Socket {
 		return messageJ.toString();
 	}
 	
-	private void createHandShakeJsonMessage() {
+	private String createHandShakeJsonMessage() {
 		JSONObject handShakeJ = new JSONObject();
 		try {
-			handShakeJ.put("id", 2);
-			handShakeJ.put("host", host);
-			handShakeJ.put("id", 2);
-			handShakeJ.put("id", 2);
+			handShakeJ.put("id", msgId);
+			handShakeJ.put("host", HOST_JSON);
+			handShakeJ.put("action", "connect");
+			handShakeJ.put("type", "control");
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+		return handShakeJ.toString();
+	}
+	
+	private boolean checkStatus(String respond) throws JSONException{
+		if(respond == null) return false;
+		return new JSONObject(respond).getString("type").equals("OK");
 	}
 	
 }
