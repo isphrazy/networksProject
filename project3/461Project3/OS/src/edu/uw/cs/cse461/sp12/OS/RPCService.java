@@ -15,6 +15,7 @@ public class RPCService extends RPCCallable {
 	
 	private ServerSocket mServerSocket;
 	
+	
 	/**
 	 * This method must be implemented by RPCCallable's.  
 	 * "rpc" is the well-known name of this service.
@@ -35,7 +36,7 @@ public class RPCService extends RPCCallable {
 	 * @throws Exception
 	 */
 	RPCService() throws Exception {
-
+		mServerSocket = new ServerSocket();
 		// Set some socket options.  
 		// setReuseAddress lets you reuse a server port immediately after terminating
 		// an application that has used it.  (Normally that port is unavailable for a while, for reasons we'll see
