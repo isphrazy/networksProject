@@ -17,8 +17,10 @@ public class RPCCallerSocket extends Socket {
 	// This variable is part of the android Log.x idiom, as in Log.v(TAG, "some debugging log message")
 	// You can use Log.x in console apps as well.
 	private static final String TAG = "RPCCallerSocket";
+	private final String host = "cse461";
 	
 	private String mRemoteHost;
+	private OutputStream mOs;
 	
 	/**
 	 * Create a socket for sending RPC invocations, connecting it to the specified remote ip and port.
@@ -37,6 +39,8 @@ public class RPCCallerSocket extends Socket {
 		this.setSoTimeout(rpcTimeout);
 		
 		//TODO: implement
+		mOs = getOutputStream();
+		createHandShakeJsonMessage();
 	}
 	
 	/**
@@ -64,15 +68,9 @@ public class RPCCallerSocket extends Socket {
 	 */
 	public JSONObject invoke(String service, String method, JSONObject userRequest) {
 		//TODO: implement
-		try {
-			OutputStream mOs = getOutputStream();
-			String outputStream = generateJsonMessage(service, method, userRequest);
-			System.out.println(outputStream);
+		String outputStream = generateJsonMessage(service, method, userRequest);
+//			System.out.println(outputStream);
 //			mOs.write()
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return null;
 	}
 
@@ -90,6 +88,18 @@ public class RPCCallerSocket extends Socket {
 		}
 		
 		return messageJ.toString();
+	}
+	
+	private void createHandShakeJsonMessage() {
+		JSONObject handShakeJ = new JSONObject();
+		try {
+			handShakeJ.put("id", 2);
+			handShakeJ.put("host", host);
+			handShakeJ.put("id", 2);
+			handShakeJ.put("id", 2);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }
