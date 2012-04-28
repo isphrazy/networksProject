@@ -88,6 +88,7 @@ public class OS {
 				Log.i(TAG, serviceClassname + " started");
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			Log.e(TAG, "Error while starting service " + startingService + ": " + e.getMessage());
 			shutdown();
 		}
