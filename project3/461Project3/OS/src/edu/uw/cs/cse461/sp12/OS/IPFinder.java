@@ -4,10 +4,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class IPFinder {
-	private IPFinder ipFinder;
-	public String ip;
+	private static IPFinder ipFinder;
+	public static String ip;
 	
-	public IPFinder getInstance(){
+	public static IPFinder getInstance(){
 		if (ipFinder == null){
 			ipFinder = new IPFinder();
 		}
@@ -15,7 +15,7 @@ public class IPFinder {
 	}
 	
 	
-	public String getIp(){
+	public static String getIp(){
 		if(ip == null){
 			try {
 				ip = InetAddress.getLocalHost().getHostAddress();

@@ -98,7 +98,7 @@ public class RPCService extends RPCCallable {
 	 * @throws UnknownHostException
 	 */
 	public String localIP() throws UnknownHostException {
-		return "console version ip";
+		return IPFinder.getInstance().getIp();
 	}
 
 	/**
