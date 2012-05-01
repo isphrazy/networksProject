@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="/hddhome/zahorjan/courses/cse461/12sp/projectFiles/solutionFiles/lib/OS.jar"/>
+    <jar path="OS/lib/OS.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/OS/OS.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
@@ -11,7 +11,7 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=OS/src"/>
         <javaElement handleIdentifier="=OS/utilSrc"/>
+        <javaElement handleIdentifier="=OS/src"/>
     </selectedElements>
 </jardesc>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/ip_et"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="cse461.cs.washington.edu"
+        android:hint="@string/ip_hint" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/port_et"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/port_number_hint"
+        android:text="46120"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/ping_b"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ping_button_text"
+        android:onClick="onClick" />
+
+    <TextView
+        android:id="@+id/ping_result_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ping_result"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/received_ping_et"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <ListView
+        android:id="@+id/ping_lv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
+    
+</LinearLayout>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, PingDroidActivity!</string>
+    <string name="app_name">PingDroid</string>
+    <string name="ip_hint">Please input IP address</string>
+    <string name="port_number_hint">Please insert port number</string>
+    <string name="ping_button_text">Ping!</string>
+    <string name="received_ping_et">Received Pings:</string>
+    <string name="ping_result">no ping result yet</string>
+</resources>

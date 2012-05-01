@@ -12,7 +12,8 @@ import edu.uw.cs.cse461.sp12.util.Log;
 public class Ping implements OSConsoleApp {
 	// I'm using the android-like Log.x() functions for debugging output, even for console apps
 	private static final String TAG="PingConsole";
-		
+	private final int NUM_OF_TRIES = 5;
+	
 	public Ping() {
 	}
 	
@@ -39,7 +40,7 @@ public class Ping implements OSConsoleApp {
 					
 					
 					RPCCallerSocket socket = null;
-					for (int i = 1; i <= 5 ; i++) {
+					for (int i = 1; i <= NUM_OF_TRIES ; i++) {
 						long startTime = System.nanoTime();
 						//if (socket == null)
 							socket = new RPCCallerSocket(targetIP, targetIP, targetPort);

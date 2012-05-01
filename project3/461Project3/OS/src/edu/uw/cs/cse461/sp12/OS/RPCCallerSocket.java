@@ -33,6 +33,7 @@ public class RPCCallerSocket extends Socket {
 	 */
 	public RPCCallerSocket(String hostname, String ip, String port) throws IOException {
 		super(ip, Integer.parseInt(port));
+		System.out.println("start socket");
 
 		mRemoteHost = hostname;
 
@@ -48,9 +49,9 @@ public class RPCCallerSocket extends Socket {
 			do{
 				msgId ++;
 				String handShakeMessage = createHandShakeJsonMessage();
-//				System.out.println(handShakeMessage);
 				tcpHandler.sendMessage(handShakeMessage);
 				respond = tcpHandler.readMessageAsString();
+				System.out.println("handshake respond: " + respond);
 			}while(!checkStatus(respond));
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -85,7 +86,7 @@ public class RPCCallerSocket extends Socket {
 	 */
 	public JSONObject invoke(String service, String method, JSONObject userRequest) {
 		//TODO: implement
-//		System.out.println("start invoking");
+		System.out.println("start invoking");
 		String outputStream = generateJsonMessage(service, method, userRequest);
 //		System.out.println(outputStream);
 		String respond = null;
@@ -94,6 +95,7 @@ public class RPCCallerSocket extends Socket {
 				msgId ++;
 				tcpHandler.sendMessage(outputStream);
 				respond = tcpHandler.readMessageAsString();
+				System.out.println("respond: " + respond);
 			} while(!checkStatus(respond));
 			return new JSONObject(respond).getJSONObject("value");
 		} catch (IOException e) {

@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="/mnt/hgfs/f/study/UniversityOfWashington/cse/461/project/project/project3/461Project3/lib/util.jar"/>
+    <jar path="util/lib/TCPUtil.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/util/util.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
@@ -11,8 +11,8 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=util/src"/>
-        <file path="/util/.project"/>
+        <javaElement handleIdentifier="=util/src&lt;edu.uw.cs.cse461.sp12.util{Log.java"/>
         <file path="/util/.classpath"/>
+        <file path="/util/.project"/>
     </selectedElements>
 </jardesc>
