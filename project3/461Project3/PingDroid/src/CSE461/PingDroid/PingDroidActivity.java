@@ -66,7 +66,7 @@ public class PingDroidActivity extends Activity {
 					socket = new RPCCallerSocket(ip, ip, port);
 					socket.invoke("echo", "echo", new JSONObject().put("msg", "") );
 					long end = System.currentTimeMillis();
-//					ping_result_tv.setText("time used: " + (end - start) + " ms");
+					ping_result_tvs[i].setText(i + ". time used: " + (end - start) + " ms");
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -83,6 +83,11 @@ public class PingDroidActivity extends Activity {
 		port_et = (EditText) findViewById(R.id.port_et);
 		ping_b = (Button) findViewById(R.id.ping_b);
 		ping_result_tvs = new TextView[SIZE];
+		ping_result_tvs[0] = (TextView) findViewById(R.id.ping_result_tv0);
+		ping_result_tvs[1] = (TextView) findViewById(R.id.ping_result_tv1);
+		ping_result_tvs[2] = (TextView) findViewById(R.id.ping_result_tv2);
+		ping_result_tvs[3] = (TextView) findViewById(R.id.ping_result_tv3);
+		ping_result_tvs[4] = (TextView) findViewById(R.id.ping_result_tv4);
 //		ping_result_tv = (TextView) findViewById(R.id.ping_result_tv);
 	}
 }
