@@ -24,7 +24,6 @@ public class Ping implements OSConsoleApp {
 	public void run() {
 		try {
 			// Eclipse doesn't support System.console()
-			//List<Double> pingTimes = new ArrayList<Double>();
 			BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 			System.out.println("Enter lines like <target> <msg> to have <msg> echoed back");
 			while ( true ) {
@@ -42,11 +41,10 @@ public class Ping implements OSConsoleApp {
 					RPCCallerSocket socket = null;
 					for (int i = 1; i <= NUM_OF_TRIES ; i++) {
 						long startTime = System.nanoTime();
-						//if (socket == null)
-							socket = new RPCCallerSocket(targetIP, targetIP, targetPort);
+						socket = new RPCCallerSocket(targetIP, targetIP, targetPort);
 						JSONObject response = socket.invoke("echo", "echo", new JSONObject().put("msg", "") );
 						long endTime = System.nanoTime();
-						//pingTimes.add((double) (endTime - startTime) / 1000000000.0);
+
 						double timeTaken = (double) (endTime - startTime) / 1000000000.0;
 						System.out.println("Test " + i + ": IP=" + targetIP + " host=" + targetPort + " time="
 								+ timeTaken + " seconds");

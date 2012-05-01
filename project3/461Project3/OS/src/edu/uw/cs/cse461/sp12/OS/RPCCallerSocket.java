@@ -37,32 +37,24 @@ public class RPCCallerSocket extends Socket {
 		mRemoteHost = hostname;
 
 		// An rpc timeout value is specified in the config file.  You should use that one, not this literal.
-		int rpcTimeout = 5000;  
+		String RPCTimeout= OS.config().getProperty("rpc.timeout");
+		int rpcTimeout = 5000;
+		try {
+			rpcTimeout = Integer.parseInt(RPCTimeout);
+		} catch (Exception e) {
+		}
 		this.setSoTimeout(rpcTimeout);
 		
-		//TODO: implement
 		msgId = 0;
-		String respond = null;
 		tcpHandler = new TCPMessageHandler(this);
-		try {
-			do{
-				msgId ++;
-				String handShakeMessage = createHandShakeJsonMessage();
-				tcpHandler.sendMessage(handShakeMessage);
-				respond = tcpHandler.readMessageAsString();
-			}while(!checkStatus(respond));
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+
 	}
-	
 	
 	/**
 	 * Close this socket.
 	 */
 	@Override
 	public void close() {
-		//TODO: implement
 		tcpHandler.discard();
 	}
 	
@@ -85,6 +77,18 @@ public class RPCCallerSocket extends Socket {
 		//TODO: implement
 		String outputStream = generateJsonMessage(service, method, userRequest);
 		String respond = null;
+		try {
+			do{
+				msgId ++;
+				String handShakeMessage = createHandShakeJsonMessage();
+				tcpHandler.sendMessage(handShakeMessage);
+				respond = tcpHandler.readMessageAsString();
+			}while(!checkStatus(respond));
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		try {
 			do{
 				msgId++;
