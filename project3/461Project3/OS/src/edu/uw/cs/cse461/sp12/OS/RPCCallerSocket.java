@@ -55,7 +55,6 @@ public class RPCCallerSocket extends Socket {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	
@@ -91,7 +90,7 @@ public class RPCCallerSocket extends Socket {
 		String respond = null;
 		try {
 			do{
-				msgId ++;
+				msgId++;
 				tcpHandler.sendMessage(outputStream);
 				respond = tcpHandler.readMessageAsString();
 			} while(!checkStatus(respond));
