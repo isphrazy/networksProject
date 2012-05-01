@@ -14,6 +14,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -32,14 +33,14 @@ public class PingDroidActivity extends Activity {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         getLayouts();
         config = new Properties();
         
 		try {
-//			config.load(getAssets().open("jz.cse461.config.ini"));
-			config.load(getAssets().open("foo.bar.config.ini"));
+			config.load(getAssets().open("jz.cse461.config.ini"));
 			OS.boot(config);
 		} catch (Exception e) {
 			e.printStackTrace();

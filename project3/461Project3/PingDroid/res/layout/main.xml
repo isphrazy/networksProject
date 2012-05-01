@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@color/background"
     android:orientation="vertical">
 
     <EditText
@@ -9,9 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="cse461.cs.washington.edu"
-        android:hint="@string/ip_hint" >
-
-        <requestFocus />
+        android:hint="@string/ip_hint" 
+        android:layout_marginTop="10dp">
     </EditText>
 
     <EditText
@@ -64,7 +64,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/received_ping_et"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="?android:attr/textAppearanceLarge" 
+        android:layout_marginTop="10dp"/>
 
     <ListView
         android:id="@+id/ping_lv"
