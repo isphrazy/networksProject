@@ -53,6 +53,13 @@ public class RPCService extends RPCCallable {
 		if (!configServerPort.isEmpty())
 			serverport = Integer.parseInt(OS.config().getProperty("rpc.serverport"));
 		mServerSocket = new ServerSocket(serverport);
+		
+		String RPCTimeout= OS.config().getProperty("rpc.timeout");
+		int rpcTimeout = 5000;
+		try {
+			rpcTimeout = Integer.parseInt(RPCTimeout);
+		} catch (Exception e) {
+		}
 		// Set some socket options.  
 		// setReuseAddress lets you reuse a server port immediately after terminating
 		// an application that has used it.  (Normally that port is unavailable for a while, for reasons we'll see
@@ -60,8 +67,7 @@ public class RPCService extends RPCCallable {
 		// setSoTimeout causes a thread waiting for connections to timeout, instead of waiting forever, if no connection
 		// is made before the timeout interval expires.  (You don't have to use 1/2 sec. for this value - choose your own.)
 		mServerSocket.setReuseAddress(true); // allow port number to be reused immediately after close of this socket
-//		mServerSocket.setSoTimeout(500); // well, we have to wake up every once and a while to check for program termination
-		System.out.println(localIP());
+//		mServerSocket.setSoTimeout(rpcTimeout); // well, we have to wake up every once and a while to check for program termination
 		server = new Server(serverport, mServerSocket);
 		server.start();
 	}
@@ -123,7 +129,6 @@ public class RPCService extends RPCCallable {
 			try {
 				server.close();
 			} catch (IOException e) {
-				System.out.println(e.getMessage());
 			}
 		}
 		
@@ -135,7 +140,7 @@ public class RPCService extends RPCCallable {
 					rpcHandler.run();
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 	}
@@ -159,19 +164,18 @@ public class RPCService extends RPCCallable {
 			try {
 				while (true) {
 					JSONObject request = tcpHandler.readMessageAsJSONObject();
-					System.out.println(request.toString());
 					msgId++;
 					if (!connected) {
 						if (numOfConnection >= maxNumOfConnection) {
 							String errorResponse = createHandShakeJsonMessage(
 									request.getInt("id"), "ERROR", "Max connections exceeded");
-							System.out.println(errorResponse);
+//							System.out.println(errorResponse);
 							tcpHandler.sendMessage(errorResponse);
 							this.close();
 						} else {
 							String okReponse = createHandShakeJsonMessage(
 									request.getInt("id"), "OK", "");
-							System.out.println(okReponse);
+//							System.out.println(okReponse);
 							tcpHandler.sendMessage(okReponse);
 							connected = true;
 						}
