@@ -60,10 +60,17 @@ public class RPCService extends RPCCallable {
 		// setSoTimeout causes a thread waiting for connections to timeout, instead of waiting forever, if no connection
 		// is made before the timeout interval expires.  (You don't have to use 1/2 sec. for this value - choose your own.)
 		mServerSocket.setReuseAddress(true); // allow port number to be reused immediately after close of this socket
+<<<<<<< HEAD
 		//mServerSocket.setSoTimeout(500); // well, we have to wake up every once and a while to check for program termination
 		System.out.println(localIP());
 		server = new Server(serverport, mServerSocket);
 		server.start();
+=======
+		mServerSocket.setSoTimeout(500); // well, we have to wake up every once and a while to check for program termination
+
+		//TODO: implement
+		
+>>>>>>> 1fedc118d0a44d8b53aaaf28ca51f03c9fc31f7c
 	}
 	
 	/**
