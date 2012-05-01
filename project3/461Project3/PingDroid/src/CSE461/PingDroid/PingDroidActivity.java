@@ -36,12 +36,18 @@ public class PingDroidActivity extends Activity {
         config = new Properties();
         
 		try {
-			config.load(getAssets().open("jz.cse461.config.ini"));
+//			config.load(getAssets().open("jz.cse461.config.ini"));
+			config.load(getAssets().open("foo.bar.config.ini"));
 			OS.boot(config);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
+		try {
+			OS.boot(config);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		OS.startServices(OS.rpcServiceClasses);
     }
     
