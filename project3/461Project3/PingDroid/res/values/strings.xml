@@ -7,4 +7,5 @@
     <string name="ping_button_text">Ping!</string>
     <string name="received_ping_et">Received Pings:</string>
     <string name="ping_result">no ping result yet</string>
+    <string name="my_ip">loading my ip address...</string>
 </resources>

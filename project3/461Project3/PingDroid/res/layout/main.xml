@@ -4,23 +4,26 @@
     android:layout_height="fill_parent"
     android:background="@color/background"
     android:orientation="vertical">
-
+
     <EditText
         android:id="@+id/ip_et"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="cse461.cs.washington.edu"
-        android:hint="@string/ip_hint" 
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:hint="@string/ip_hint"
+        android:singleLine="true"
+        android:text="cse461.cs.washington.edu" >
+
     </EditText>
-
+
     <EditText
         android:id="@+id/port_et"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/port_number_hint"
-        android:text="46120"
-        android:inputType="number" />
+        android:inputType="number"
+        android:singleLine="true"
+        android:text="46120" />
 
     <Button
         android:id="@+id/ping_b"
@@ -58,14 +61,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/ping_result"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/ip_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/my_ip"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_marginTop="5dp" />
+
     <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/received_ping_et"
         android:textAppearance="?android:attr/textAppearanceLarge" 
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="5dp"/>
 
     <ListView
         android:id="@+id/ping_lv"

@@ -3,10 +3,19 @@ package edu.uw.cs.cse461.sp12.OS;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+/**
+ * singleton, return the ip address
+ * @author Pingyang He
+ *
+ */
 public class IPFinder {
 	private static IPFinder ipFinder;
 	public static String ip;
 	
+	/**
+	 * 
+	 * @return the instance of this class
+	 */
 	public static IPFinder getInstance(){
 		if (ipFinder == null){
 			ipFinder = new IPFinder();
@@ -14,7 +23,10 @@ public class IPFinder {
 		return ipFinder;
 	}
 	
-	
+	/**
+	 * 
+	 * @return get the ip address
+	 */
 	public static String getIp(){
 		if(ip == null){
 			try {
