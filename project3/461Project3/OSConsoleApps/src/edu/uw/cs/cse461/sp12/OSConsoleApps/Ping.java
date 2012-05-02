@@ -42,7 +42,7 @@ public class Ping implements OSConsoleApp {
 					for (int i = 1; i <= NUM_OF_TRIES ; i++) {
 						long startTime = System.nanoTime();
 						socket = new RPCCallerSocket(targetIP, targetIP, targetPort);
-						JSONObject response = socket.invoke("echo", "echo", new JSONObject().put("msg", "") );
+						socket.invoke("echo", "echo", new JSONObject().put("msg", "") );
 						long endTime = System.nanoTime();
 
 						double timeTaken = (double) (endTime - startTime) / 1000000000.0;
