@@ -47,7 +47,6 @@ public class RPCCallerSocket extends Socket {
 		
 		msgId = 0;
 		tcpHandler = new TCPMessageHandler(this);
-
 	}
 	
 	/**
@@ -74,32 +73,48 @@ public class RPCCallerSocket extends Socket {
 	 * @return
 	 */
 	public JSONObject invoke(String service, String method, JSONObject userRequest) {
-		//TODO: implement
-		String outputStream = generateJsonMessage(service, method, userRequest);
 		String respond = null;
 		try {
 			do{
-				msgId ++;
+				msgId++;
 				String handShakeMessage = createHandShakeJsonMessage();
 				tcpHandler.sendMessage(handShakeMessage);
 				respond = tcpHandler.readMessageAsString();
-			}while(!checkStatus(respond));
+				if (!checkResponse(respond, "handshake"))
+					throw new IllegalArgumentException();
+			} while(!checkStatus(respond, "OK"));
 		} catch (JSONException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			try {
+				return new JSONObject().put("msg", "An error has occurd, connection is terminated");
+			} catch (JSONException e1) {}
 		}
+		
+		String outputStream = generateJsonMessage(service, method, userRequest);
+		respond = null;
+		
 		try {
-			do{
-				msgId++;
-				tcpHandler.sendMessage(outputStream);
-				respond = tcpHandler.readMessageAsString();
-			} while(!checkStatus(respond));
+			msgId++;
+			tcpHandler.sendMessage(outputStream);
+			respond = tcpHandler.readMessageAsString();
+			if (!checkResponse(respond, "invoke"))
+				throw new IllegalArgumentException();
+			if (checkStatus(respond, "ERROR")) {
+				JSONObject res = new JSONObject(respond);
+				return new JSONObject().put("msg", res.getString("message"));
+			}
 			return new JSONObject(respond).getJSONObject("value");
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (JSONException e) {
 			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			try {
+				return new JSONObject().put("msg", "An error has occurd, connection is terminated");
+			} catch (JSONException e1) {}
 		}
 		return null;
 	}
@@ -135,9 +150,29 @@ public class RPCCallerSocket extends Socket {
 	}
 	
 	//check respond status
-	private boolean checkStatus(String respond) throws JSONException{
+	private boolean checkStatus(String respond, String type) throws JSONException{
 		if(respond == null) return false;
-		return new JSONObject(respond).getString("type").equals("OK");
+		return new JSONObject(respond).getString("type").equals(type);
 	}
 	
+	// check if res follows the rpc protocol
+	private boolean checkResponse(String res, String type) {
+		JSONObject respond;
+		try {
+			respond = new JSONObject(res);
+			if (type.equals("handshake")) {
+				if (respond.has("id") && respond.has("type"))
+					return true;
+				else
+					return false;
+			} else {
+				if (respond.has("id") && (respond.has("value") || respond.has("message")) && respond.has("type"))
+					return true;
+				else
+					return false;
+			}
+		} catch (JSONException e) {
+		}
+		return false;
+	}
 }
