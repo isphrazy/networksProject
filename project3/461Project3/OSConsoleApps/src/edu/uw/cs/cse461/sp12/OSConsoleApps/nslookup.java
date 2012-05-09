@@ -3,13 +3,12 @@ package edu.uw.cs.cse461.sp12.OSConsoleApps;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import edu.uw.cs.cse461.sp12.OS.DDNSException;
 import edu.uw.cs.cse461.sp12.OS.DDNSException.DDNSNoAddressException;
 import edu.uw.cs.cse461.sp12.OS.DDNSException.DDNSNoSuchNameException;
 import edu.uw.cs.cse461.sp12.OS.DDNSRRecord;
 import edu.uw.cs.cse461.sp12.OS.DDNSResolverService;
 import edu.uw.cs.cse461.sp12.OS.OS;
-import edu.uw.cs.cse461.sp12.OS.OSLoadable.OSLoadableApp;
-import edu.uw.cs.cse461.sp12.OS.RPCCallable;
 
 /**
  * This application resolves a name and displays the resulting resource record.
@@ -23,13 +22,13 @@ import edu.uw.cs.cse461.sp12.OS.RPCCallable;
  * @author zahorjan
  *
  */
-public class nslookup extends RPCCallable {
+public class nslookup implements OSConsoleApp {
 	
 	/**
 	 * Method required by OSLoadableApp interface
 	 */
 	@Override
-	public String servicename() { return "nslookup"; }
+	public String appname() { return "nslookup"; }
 	
 	/**
 	 * Constructor required by OSLoadableApp interface.  There's nothing to do for this app.
@@ -47,7 +46,6 @@ public class nslookup extends RPCCallable {
 	 * Fetches the resource record for a name, using the locally running DDNS name resolver service.
 	 * (All systems are required to run a name resolver.)
 	 */
-	@Override
 	public void run() {
 		try {
 			// Eclipse doesn't support System.console()
@@ -62,17 +60,16 @@ public class nslookup extends RPCCallable {
 					else if ( targetStr.equals("exit")) break;
 					record = ((DDNSResolverService)OS.getService("ddnsresolver")).resolve(targetStr);
 					System.out.println( targetStr + ":  [" + record.toString() + "]");
-				} catch (DDNSNoAddressException nae) {
-					System.out.println("No address is currently assoicated with that name");
-				} catch (DDNSNoSuchNameException nsne) {
-					System.out.println("No such name: " + targetStr);
+//				} catch (DDNSNoAddressException nae) {
+//					System.out.println("No address is currently assoicated with that name");
+//				} catch (DDNSNoSuchNameException nsne) {
+//					System.out.println("No such name: " + targetStr);
 				} catch (Exception e) {
 					System.out.println("Exception: " + e.getMessage());
 				}
 			}
 		} catch (Exception e) {
 			System.out.println("EchoConsole.run() caught exception: " + e.getMessage());
-		}
-		
+		}	
 	}
 }

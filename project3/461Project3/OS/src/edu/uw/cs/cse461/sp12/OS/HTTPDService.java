@@ -3,7 +3,6 @@ package edu.uw.cs.cse461.sp12.OS;
 import java.io.IOException;
 import java.util.Properties;
 
-import edu.uw.cs.cse461.sp12.OS.OSLoadable.OSLoadableService;
 import edu.uw.cs.cse461.sp12.util.Log;
 import edu.uw.cs.cse461.sp12.util.NanoHTTPD;
 
@@ -18,7 +17,7 @@ import edu.uw.cs.cse461.sp12.util.NanoHTTPD;
  * @author zahorjan
  *
  */
-public class HTTPDService implements OSLoadableService {
+public class HTTPDService extends RPCCallable {
 	private static final String TAG="DDNSServiceHTTPD";
 
 	private NanoHTTPDService mNanoService;
@@ -31,7 +30,7 @@ public class HTTPDService implements OSLoadableService {
 	}
 
 	@Override
-	public String loadablename() { 
+	public String servicename() { 
 		return "httpd"; 
 	}
 	
@@ -88,7 +87,8 @@ public class HTTPDService implements OSLoadableService {
 
 	public HTTPDService() throws IOException {
 		
-		int port = OS.config().getInt("httpd.port", 0, 0, TAG);
+		// Http.port default is set to 46111 <- Randomly selected
+		int port = Integer.parseInt(OS.config().getProperty("httpd.port", "46111"));
 		this.mNanoService = new NanoHTTPDService(port);
 		port = mNanoService.localPort();
 
