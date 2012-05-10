@@ -70,19 +70,5 @@
         android:text="@string/my_ip"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_marginTop="5dp" />
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/received_ping_et"
-        android:textAppearance="?android:attr/textAppearanceLarge" 
-        android:layout_marginTop="5dp"/>
-
-    <ListView
-        android:id="@+id/ping_lv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </ListView>
     
 </LinearLayout>

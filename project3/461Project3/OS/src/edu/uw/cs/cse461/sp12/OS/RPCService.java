@@ -163,6 +163,7 @@ public class RPCService extends RPCCallable {
 					Socket incoming_socket = server.accept();
 					RPCHandler rpcHandler = new RPCHandler(incoming_socket);
 					rpcHandler.start();
+//					rpcHandler.run();
 				}
 			} catch (SocketTimeoutException e) {
 				if (!server.isClosed())
