@@ -44,7 +44,6 @@ public class RPCCallerSocket extends Socket {
 		} catch (Exception e) {
 		}
 		this.setSoTimeout(rpcTimeout);
-		
 		msgId = 0;
 		tcpHandler = new TCPMessageHandler(this);
 	}
