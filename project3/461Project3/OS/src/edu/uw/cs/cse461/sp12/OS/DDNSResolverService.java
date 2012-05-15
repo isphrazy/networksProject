@@ -9,7 +9,7 @@ public class DDNSResolverService extends RPCCallable{
 
 	@Override
 	public void shutdown() {
-		// TODO Auto-generated method stub	
+		// TODO Auto-generated method stub
 	}
 	
 	public void register(DDNSFullName hostname, int port) {
