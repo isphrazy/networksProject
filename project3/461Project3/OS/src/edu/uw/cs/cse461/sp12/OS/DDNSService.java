@@ -1,29 +1,40 @@
 package edu.uw.cs.cse461.sp12.OS;
 
-public class DDNSService extends RPCCallable{
+import java.util.Iterator;
 
-    public DDNSService(){
-        
-    }
-    
-    public void register(DDNSFullName hostname, int port) {
-        
-    }
-    
-    public void unregister(DDNSFullName hostname) {
-        
-    }
-    
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import edu.uw.cs.cse461.sp12.OS.RPCCallable.RPCCallableMethod;
+
+class DDNSService extends RPCCallable{
+	
+	// A variable capable of describing a method that can be invoked by RPC.
+	private RPCCallableMethod<DDNSService> ddns;
+	
     @Override
     public String servicename() {
-        
         return "ddns";
     }
 
     @Override
     public void shutdown() {
-        // TODO Auto-generated method stub
+		// nothing to do, but have to implement to fulfill the interface promise
+    }
+    
+    public DDNSService() throws Exception{
+    	// Set up the method descriptor variable to refer to this->_register()
+		//ddns = new RPCCallableMethod<DDNSService>(this, "_register");
+		// Register the method with the RPC service as externally invocable method "register"
+		//((RPCService)OS.getService("rpc")).registerHandler(servicename(), "_register", ddns );
+		int serverport = Integer.parseInt(OS.config().getProperty("rpc.serverport"));
+    	String rootName = OS.config().getProperty("root.name");
+		
+    	((DDNSResolverService)OS.getService("ddnsresolver")).register(new DDNSFullName(rootName), serverport );
+    	
+    }
+    
+    public void unregister(DDNSFullName hostname) {
         
     }
-
 }
