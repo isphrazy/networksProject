@@ -1,7 +1,10 @@
 package edu.uw.cs.cse461.sp12.OS;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,12 +16,15 @@ public class DDNSResolverService extends RPCCallable{
     private String password;
     private String hostName;
     private int myPort;
-    private DDNSRRecord cacheRecord;
+    private Map<String, DDNSRRecord> cacheRecords;
+    private Timer timer;
+    private boolean timerStarted;
     
     public DDNSResolverService() {
         loadConfig();
-        
-        cacheRecord = new DDNSRRecord();
+        timer = new Timer();
+        cacheRecords = new HashMap<String, DDNSRRecord>();
+        timerStarted = false;
     }
     
 	private void loadConfig() {
@@ -38,12 +44,13 @@ public class DDNSResolverService extends RPCCallable{
 		// TODO Auto-generated method stub
 	}
 	
-	public void register(DDNSFullName hostname, int myPort) {
+	public DDNSRRecord register(DDNSFullName hostname, int myPort) {
 	    String currentHostname = hostname.hostname;
+//	    DDNSRRecord result = new DDNSRRecord();
 	    int upperNamePos = currentHostname.indexOf('.');
 	    int upperUpperNamePos = currentHostname.indexOf('.', upperNamePos + 1);
+	    DDNSRRecord record = new DDNSRRecord();
 	    if(upperUpperNamePos >= 0){
-	        DDNSRRecord record = new DDNSRRecord();
 	        
 	        //if the domain is in cse461
 	        if(currentHostname.substring(upperNamePos + 1, upperUpperNamePos).equals("cse461")){
@@ -58,17 +65,49 @@ public class DDNSResolverService extends RPCCallable{
 	            RPCCallerSocket callerSocket = new RPCCallerSocket(record.ip, record.ip, "" + record.port);
 	            JSONObject response = callerSocket.invoke("ddns", "register", generateRegisterJson(hostname, myPort));
 	            System.out.println("register reponse: " + response);
-	            Timer timer = new Timer();
-//	            timer.scheduleAtFixedRate(task, firstTime, period)
+	            JSONObject node = response.getJSONObject("node");
+	            record.ip = node.getString("ip");
+	            record.port = node.getInt("port");
+	            record.name = node.getString("name");
+	            
+	            if(!timerStarted){
+	                timerStarted = true;
+	                long delay = (long)(response.getLong("lifetime") * 0.8 * 1000);
+	                startTimer(delay, hostname, myPort);
+	            }
+	            
 	        } catch (IOException excp) {
 	            excp.printStackTrace();
-	        }
+	        } catch (JSONException e) {
+                e.printStackTrace();
+            }
+	        
 	    }
+	    return record;
 	}
 	
+	private void startTimer(long delay, DDNSFullName hostname, int myPort){
+        MTimerTask task = new MTimerTask();
+        task.hostname = hostname;
+        task.myPort = myPort;
+        timer = new Timer();
+        timer.scheduleAtFixedRate(task, delay, delay);
+	}
 	
-	
-//	private void admin(hostname)
+	public class MTimerTask extends TimerTask{
+
+	    DDNSFullName hostname;
+	    int myPort;
+	    
+        @Override
+        public void run() {
+            if(timerStarted)
+                register(hostname, myPort);
+            else
+                timer.cancel();
+        }
+	    
+	}
 	
 	/*
 	 * generate register json string and return it
@@ -80,7 +119,7 @@ public class DDNSResolverService extends RPCCallable{
             registerJ.put("name", hostname.hostname.trim());
             registerJ.put("password", password);
             registerJ.put("ip", IPFinder.getCurrentIp());
-            System.out.println(registerJ.toString());
+            System.out.println("generateRegisterJson: " + registerJ.toString());
         } catch (JSONException excp) {
             excp.printStackTrace();
         }
@@ -88,7 +127,9 @@ public class DDNSResolverService extends RPCCallable{
     }
 
     public void unregister(DDNSFullName hostname) {
+        timerStarted = false;
 //        DDNSRRecord record = resolve(hostname.hostname);
+        
         DDNSRRecord record = new DDNSRRecord();
         record.ip = rootName;
         record.port = Integer.parseInt(rootPort);
@@ -123,8 +164,9 @@ public class DDNSResolverService extends RPCCallable{
         String remoteName = null;
         String remotePort = null;
         JSONObject request = generateResolveJson(target);
-
-        if(cacheRecord.initialized){
+        DDNSRRecord cacheRecord;
+        if(cacheRecords.containsKey(target)){
+            cacheRecord = cacheRecords.get(target);
             remoteName = cacheRecord.ip;
             remoteName = "" + cacheRecord.port;
             try {
@@ -138,25 +180,41 @@ public class DDNSResolverService extends RPCCallable{
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }else{
+            cacheRecords.put(target, new DDNSRRecord());
+            cacheRecord = cacheRecords.get(target);
+            
         }
         
         remoteName = rootName;
         remotePort = rootPort;
         
         try {
+            int maxResolveNumber = 8;
             do{
+                System.out.println("resolve to name: " + remoteName + " port: " + remotePort);
                 callerSocket = new RPCCallerSocket(remoteName, remoteName, remotePort);
                 response = callerSocket.invoke("ddns", "resolve", request);
                 System.out.println("resolve result: " + response.toString());
                 node = response.getJSONObject("node");
-                remoteName = node.getString("ip");
-                remotePort = "" + node.getInt("port");
-                
-            }while(!response.getBoolean("done"));
+                if(node.getString("type").equals("CNAME")){
+                    request = generateResolveJson(node.getString("alias"));
+                    remoteName = rootName;
+                    remotePort = rootPort;
+                }else{
+                    remoteName = node.getString("ip");
+                    remotePort = "" + node.getInt("port");
+                }
+                maxResolveNumber--;
+            }while(!response.getBoolean("done") && maxResolveNumber > 0);
+            if(maxResolveNumber <= 0){
+                cacheRecord.success = false;
+                return cacheRecord;
+            }
+            cacheRecord.success = false;
             cacheRecord.type = node.getString("type");
             cacheRecord.ip = node.getString("ip");
             cacheRecord.port = node.getInt("port");
-            cacheRecord.initialized = true;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {
