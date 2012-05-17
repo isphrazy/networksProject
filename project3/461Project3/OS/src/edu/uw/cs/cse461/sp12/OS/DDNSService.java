@@ -28,9 +28,9 @@ class DDNSService extends RPCCallable{
 		// Register the method with the RPC service as externally invocable method "register"
 		//((RPCService)OS.getService("rpc")).registerHandler(servicename(), "_register", ddns );
 		int serverport = Integer.parseInt(OS.config().getProperty("rpc.serverport"));
-    	String rootName = OS.config().getProperty("root.name");
+    	String hostName = OS.config().getProperty("host.name");
 		
-    	((DDNSResolverService)OS.getService("ddnsresolver")).register(new DDNSFullName(rootName), serverport );
+    	((DDNSResolverService)OS.getService("ddnsresolver")).register(new DDNSFullName(hostName), serverport );
     	
     }
     

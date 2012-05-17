@@ -35,9 +35,9 @@ public class OS {
 													   "edu.uw.cs.cse461.sp12.OS.EchoService"
 	                                                 };
 	public static final String[] ddnsServiceClasses = { 
-//	                                                    "edu.uw.cs.cse461.sp12.OS.DDNSService",
-	                                                    "edu.uw.cs.cse461.sp12.OS.DDNSResolverService",
-	                                                    "edu.uw.cs.cse461.sp12.OS.HTTPDService"
+                                                	    "edu.uw.cs.cse461.sp12.OS.DDNSResolverService",
+	                                                    "edu.uw.cs.cse461.sp12.OS.DDNSService",
+//	                                                    "edu.uw.cs.cse461.sp12.OS.HTTPDService"
 			  									      };
 	//---------------------------------------------------------------------------------------------------
 

@@ -65,10 +65,12 @@ public class nslookup implements OSConsoleApp {
 //				} catch (DDNSNoSuchNameException nsne) {
 //					System.out.println("No such name: " + targetStr);
 				} catch (Exception e) {
+				    e.printStackTrace();
 					System.out.println("Exception: " + e.getMessage());
 				}
 			}
 		} catch (Exception e) {
+		    e.printStackTrace();
 			System.out.println("EchoConsole.run() caught exception: " + e.getMessage());
 		}	
 	}

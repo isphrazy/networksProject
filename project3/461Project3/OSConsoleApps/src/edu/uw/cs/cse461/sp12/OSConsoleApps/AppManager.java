@@ -32,6 +32,7 @@ public class AppManager {
 	
 	protected static final String[] RPCApps = {"edu.uw.cs.cse461.sp12.OSConsoleApps.Echo", 
 											   "edu.uw.cs.cse461.sp12.OSConsoleApps.WhoAmI",
+											   "edu.uw.cs.cse461.sp12.OSConsoleApps.nslookup",
 											   "edu.uw.cs.cse461.sp12.OSConsoleApps.Ping"
 											  };
 	
@@ -79,6 +80,7 @@ public class AppManager {
 		// boot the OS and load RPC services
 		OS.boot(config);
 		OS.startServices(OS.rpcServiceClasses);
+		OS.startServices(OS.ddnsServiceClasses);
 	}
 
 	/**
