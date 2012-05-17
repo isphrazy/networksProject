@@ -35,8 +35,8 @@ public class OS {
 													   "edu.uw.cs.cse461.sp12.OS.EchoService"
 	                                                 };
 	public static final String[] ddnsServiceClasses = { 
-                                                	    "edu.uw.cs.cse461.sp12.OS.DDNSResolverService",
-	                                                    "edu.uw.cs.cse461.sp12.OS.DDNSService",
+														"edu.uw.cs.cse461.sp12.OS.DDNSResolverService",
+//	                                                    "edu.uw.cs.cse461.sp12.OS.DDNSService",
 //	                                                    "edu.uw.cs.cse461.sp12.OS.HTTPDService"
 			  									      };
 	//---------------------------------------------------------------------------------------------------
@@ -199,7 +199,7 @@ public class OS {
 			OS.boot(config);
 			OS.startServices(rpcServiceClasses);
 			// not used until Project 4
-			OS.startServices(ddnsServiceClasses);
+//			OS.startServices(ddnsServiceClasses);
 
 		} catch (Exception e) {
 			Log.e(TAG, "Caught exception: " + e.getMessage());

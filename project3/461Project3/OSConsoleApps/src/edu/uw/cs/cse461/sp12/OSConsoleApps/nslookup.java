@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import edu.uw.cs.cse461.sp12.OS.DDNSException;
-import edu.uw.cs.cse461.sp12.OS.DDNSException.DDNSNoAddressException;
-import edu.uw.cs.cse461.sp12.OS.DDNSException.DDNSNoSuchNameException;
+//import edu.uw.cs.cse461.sp12.OS.DDNSException.DDNSNoAddressException;
+//import edu.uw.cs.cse461.sp12.OS.DDNSException.DDNSNoSuchNameException;
 import edu.uw.cs.cse461.sp12.OS.DDNSRRecord;
 import edu.uw.cs.cse461.sp12.OS.DDNSResolverService;
 import edu.uw.cs.cse461.sp12.OS.OS;
@@ -65,12 +65,10 @@ public class nslookup implements OSConsoleApp {
 //				} catch (DDNSNoSuchNameException nsne) {
 //					System.out.println("No such name: " + targetStr);
 				} catch (Exception e) {
-				    e.printStackTrace();
 					System.out.println("Exception: " + e.getMessage());
 				}
 			}
 		} catch (Exception e) {
-		    e.printStackTrace();
 			System.out.println("EchoConsole.run() caught exception: " + e.getMessage());
 		}	
 	}
