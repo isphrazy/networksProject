@@ -6,6 +6,15 @@ import java.util.TimerTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * DDNSRRecord indicates the record type of this ddns.
+ * It stores the ip address and port number of this instance.
+ * 
+ * @author Cheng Hao Chuang
+ * @author Pingyang He
+ * @project CSE461 12sp project 4 
+ *
+ */
 public class DDNSRRecord {
 	private boolean isAlive;
 	private String ip;

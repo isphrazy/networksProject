@@ -31,7 +31,7 @@ public class Ping implements OSConsoleApp {
 			System.out.println("Enter lines like <target> <msg> to have <msg> echoed back");
 			while ( true ) {
 				try {
-					System.out.print("Enter a host ip, or exit to exit: ");
+					System.out.print("Enter a host name or ip, or exit to exit: ");
 					String targetIP = console.readLine();
 					if ( targetIP == null ) targetIP = "";
 					else if ( targetIP.equals("exit")) break;
@@ -44,9 +44,11 @@ public class Ping implements OSConsoleApp {
 					        System.out.println("can't resolve given address");
 					        continue;
 					    }
+					    targetIP = record.getIp();
+					    targetPort = Integer.toString(record.getPort());
 					}else{
-					    targetPort = console.readLine();
 					    System.out.print("Enter the RPC port, or empty line to exit: ");
+					    targetPort = console.readLine();
 					    if ( targetPort == null || targetPort.isEmpty() ) continue;
 					}
 
