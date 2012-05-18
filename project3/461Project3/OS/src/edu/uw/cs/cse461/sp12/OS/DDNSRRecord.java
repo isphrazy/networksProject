@@ -43,7 +43,8 @@ public class DDNSRRecord {
 	}
 	
 	public void terminateTimers() {
-		this.timer.cancel();
+		if (this.timer != null)
+			this.timer.cancel();
 	}
 	
     public boolean isDone() {
@@ -95,7 +96,8 @@ public class DDNSRRecord {
 	}
 	
 	public void unregisterDDNSRecord() {
-		this.timer.cancel();
+		if (this.timer != null)
+			this.timer.cancel();
 		this.isAlive = false;
 	}
 	

@@ -113,6 +113,7 @@ public class OS {
 			serviceMap.clear();
 		} catch (Exception e) {
 			Log.e(TAG, "Error shutting down services: " + e.getMessage());
+			e.printStackTrace();
 			throw new RuntimeException(e.getMessage());
 		}
 		mAmShutdown = true;
