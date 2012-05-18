@@ -42,11 +42,9 @@ public class IPFinder {
 	    String currentIp = null;
 	    try {
 	        currentIp = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException excp) {
-            // TODO Auto-generated catch block
-            excp.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
         }
-	    
 	    return currentIp;
 	}
 }

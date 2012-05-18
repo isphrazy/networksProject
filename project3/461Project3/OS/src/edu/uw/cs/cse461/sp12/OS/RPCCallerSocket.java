@@ -85,7 +85,9 @@ public class RPCCallerSocket extends Socket {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
+			try {
+				return new JSONObject().put("msg", "An error has occurd");
+			} catch (JSONException e1) {}
 		} catch (IllegalArgumentException e) {
 			try {
 				return new JSONObject().put("msg", "An error has occurd, connection is terminated");
@@ -107,7 +109,9 @@ public class RPCCallerSocket extends Socket {
 			}
 			return new JSONObject(respond).getJSONObject("value");
 		} catch (IOException e) {
-			e.printStackTrace();
+			try {
+				return new JSONObject().put("msg", "An error has occurd");
+			} catch (JSONException e1) {}		
 		} catch (JSONException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {

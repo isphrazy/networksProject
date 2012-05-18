@@ -98,7 +98,6 @@ public class HTTPDService extends RPCCallable {
 			if ( resolver == null ) Log.w(TAG, "No local resolver.  Can't register name www");
 			else resolver.register(new DDNSFullName(OS.hostname() + ".www"), port );  
 		} catch (Exception e) {
-		    e.printStackTrace();
 			Log.w(TAG , "Couldn't register name: " + e.getMessage());
 		}
 		Log.i(TAG, "Service started on port " + mNanoService.localPort());
