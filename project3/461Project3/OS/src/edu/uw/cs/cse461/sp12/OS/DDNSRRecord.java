@@ -32,7 +32,6 @@ public class DDNSRRecord {
 		this.DDNSRecordType = DDNSRecordType;
 		this.ip = "";
 		this.port = -1;
-		this.timer = new Timer();
 	}
 	
 	public DDNSRRecord(String DDNSRecordType, String name, String ip, int port) {
@@ -41,7 +40,6 @@ public class DDNSRRecord {
 		this.DDNSRecordType = DDNSRecordType;
 		this.ip = ip;
 		this.port = port;
-		this.timer = new Timer();
 	}
 	
 	public void terminateTimers() {
@@ -115,7 +113,9 @@ public class DDNSRRecord {
 	}
 	
 	public void schedule(int ttl, String IP, int Port) {
-		this.timer.cancel();
+		if (this.timer != null)
+			this.timer.cancel();
+		timer = new Timer();
 		this.isAlive = true;
 		this.ip = IP;
 		this.port = Port;

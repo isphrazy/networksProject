@@ -8,7 +8,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 class DDNSService extends RPCCallable{
-	public static final String[] ddnsHostNames = {};
+	public static final String[] ddnsHostNames = {
+		"htc.null.cse461."
+	};
 	
 	private static final int TTL = 60;
 	
@@ -16,7 +18,6 @@ class DDNSService extends RPCCallable{
 	private RPCCallableMethod<DDNSService> ddns;
 	private RPCCallableMethod<DDNSService> resolve;
 
-	
 	private Map<String, DDNSRRecord> ddnsMap;
 	private Map<String, String> ddnsHostAndPassword;
 	private String hostName;
@@ -68,7 +69,7 @@ class DDNSService extends RPCCallable{
     		String ip = args.getString("ip");
     		int port = args.getInt("port");
     		
-    		if (!ddnsMap.containsKey(name))
+    		if (!ddnsMap.containsKey(name) || !ddnsHostAndPassword.containsKey(name))
     			return exceptionMsg(new DDNSNoSuchNameException(), name);
     		
     		if (!ddnsHostAndPassword.get(name).equals(password))
@@ -114,7 +115,6 @@ class DDNSService extends RPCCallable{
     	String newName = name;
     	if (!name.endsWith("."))
     		newName += ".";
-    	
     	if (this.ddnsRecordType.getName().equals(newName)) {
     		return successMsg(ddnsRecordType, "resolveresult", false);
     	}
@@ -122,7 +122,6 @@ class DDNSService extends RPCCallable{
     	if (this.ddnsMap.containsKey(newName)) {
     		if (!this.ddnsMap.get(newName).isAlive())
     			return exceptionMsg(new DDNSNoAddressException(), name);
-    	
     		return successMsg(ddnsMap.get(newName), "resolveresult", false);
     	}
 
@@ -131,7 +130,6 @@ class DDNSService extends RPCCallable{
     			return successMsg(ddnsMap.get(newName), "resolveresult", false);
     		}
     	}
-    	
     	return exceptionMsg(new DDNSNoSuchNameException(), name);
     }
     
@@ -156,8 +154,8 @@ class DDNSService extends RPCCallable{
     	JSONObject exceptionMsg = new JSONObject();
 		try {
 			exceptionMsg.put("resulttype", exception.resulttype);
-			exceptionMsg.put("exceptionnum", exception.exceptionnum);
-			exceptionMsg.put("message", exception.message+name);
+			exceptionMsg.put("exceptionnum", exception.getExceptionnum());
+			exceptionMsg.put("message", exception.getMessage()+name);
 			if (!(exception instanceof DDNSRuntimeException))
 				exceptionMsg.put("name", name);
 		} catch (JSONException e) {
@@ -171,8 +169,7 @@ class DDNSService extends RPCCallable{
 			if (ddnsRecordType.equals("A") || ddnsRecordType.equals("SOA") ||
 					ddnsRecordType.equals("CNAME"))
 				throw new Exception();
-			
-			if (ddnsRecordType.equals("SOA")) {
+			if (ddnsRecordType.getDDNSRecordType().equals("SOA")) {
 				for (String hostName: ddnsHostNames) {
 					String ddnsRecordType = OS.config().getProperty(hostName+"recordtype");
 					ddnsMap.put(hostName, new DDNSRRecord(ddnsRecordType, hostName));

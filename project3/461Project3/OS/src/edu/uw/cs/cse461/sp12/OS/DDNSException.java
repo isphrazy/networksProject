@@ -10,6 +10,14 @@ public class DDNSException extends Exception {
 	public DDNSException(String message) { super(message); }
 	public DDNSException(String message, Throwable cause) { super(message, cause); }
 	public DDNSException(Throwable cause) { super(cause); }
+	
+	public int getExceptionnum() {
+		return exceptionnum;
+	}
+	
+	public String getMessage() {
+		return message;
+	}
 }
 
 class DDNSNoSuchNameException extends DDNSException {
@@ -20,6 +28,14 @@ class DDNSNoSuchNameException extends DDNSException {
 	public DDNSNoSuchNameException(String message) { super(message); }
 	public DDNSNoSuchNameException(String message, Throwable cause) { super(message, cause); }
 	public DDNSNoSuchNameException(Throwable cause) { super(cause); }
+	
+	public int getExceptionnum() {
+		return exceptionnum;
+	}
+	
+	public String getMessage() {
+		return message;
+	}
 }
 	
 class DDNSNoAddressException extends DDNSException {
@@ -30,6 +46,14 @@ class DDNSNoAddressException extends DDNSException {
 	public DDNSNoAddressException(String message) { super(message); }
 	public DDNSNoAddressException(String message, Throwable cause) { super(message, cause); }
 	public DDNSNoAddressException(Throwable cause) { super(cause); }
+	
+	public int getExceptionnum() {
+		return exceptionnum;
+	}
+	
+	public String getMessage() {
+		return message;
+	}
 }
 	
 class DDNSAuthorizationException extends DDNSException {
@@ -40,6 +64,14 @@ class DDNSAuthorizationException extends DDNSException {
 	public DDNSAuthorizationException(String message) { super(message); }
 	public DDNSAuthorizationException(String message, Throwable cause) { super(message, cause); }
 	public DDNSAuthorizationException(Throwable cause) { super(cause); }
+	
+	public int getExceptionnum() {
+		return exceptionnum;
+	}
+	
+	public String getMessage() {
+		return message;
+	}
 }
 	
 class DDNSRuntimeException extends DDNSException {
@@ -50,6 +82,14 @@ class DDNSRuntimeException extends DDNSException {
 	public DDNSRuntimeException(String message) { super(message); }
 	public DDNSRuntimeException(String message, Throwable cause) { super(message, cause); }
 	public DDNSRuntimeException(Throwable cause) { super(cause); }
+	
+	public int getExceptionnum() {
+		return exceptionnum;
+	}
+	
+	public String getMessage() {
+		return message;
+	}
 }
 	
 class DDNSTTLExpiredException extends DDNSException {
@@ -60,6 +100,14 @@ class DDNSTTLExpiredException extends DDNSException {
 	public DDNSTTLExpiredException(String message) { super(message); }
 	public DDNSTTLExpiredException(String message, Throwable cause) { super(message, cause); }
 	public DDNSTTLExpiredException(Throwable cause) { super(cause); }
+	
+	public int getExceptionnum() {
+		return exceptionnum;
+	}
+	
+	public String getMessage() {
+		return message;
+	}
 }
 	
 class DDNSZoneException extends DDNSException {
@@ -70,4 +118,12 @@ class DDNSZoneException extends DDNSException {
 	public DDNSZoneException(String message) { super(message); }
 	public DDNSZoneException(String message, Throwable cause) { super(message, cause); }
 	public DDNSZoneException(Throwable cause) { super(cause); }
+	
+	public int getExceptionnum() {
+		return exceptionnum;
+	}
+	
+	public String getMessage() {
+		return message;
+	}
 }
