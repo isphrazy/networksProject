@@ -157,6 +157,5 @@ public class AppManager {
 		} finally {
 			if ( mgr != null ) mgr.shutdown();
 		}
-	}
-		
+	}		
 }
