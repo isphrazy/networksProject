@@ -13,7 +13,6 @@ public class DDNSRRecord {
 	private Timer timer;
 	private String name;
 	private String DDNSRecordType;
-	private String type;
 	private boolean done;
 	
     public DDNSRRecord(){}
@@ -60,14 +59,6 @@ public class DDNSRRecord {
 		return name;
 	}
 	
-	public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-	
 	public void setName(String name){
 	    this.name = name;
 	}
@@ -82,6 +73,10 @@ public class DDNSRRecord {
 	
 	public String getDDNSRecordType() {
 		return DDNSRecordType;
+	}
+	
+	public void setDDNSRecordType(String type){
+	    DDNSRecordType = type;
 	}
 	
 	public JSONObject toJSON() {
@@ -114,9 +109,9 @@ public class DDNSRRecord {
 	public String toString(){
 	    StringBuilder sb = new StringBuilder();
 	    sb.append("name: " + name);
-	    sb.append(" ip: " + ip);
-	    sb.append(" port: " + port);
-	    sb.append(" type: " + DDNSRecordType);
+	    sb.append(", ip: " + ip);
+	    sb.append(", port: " + port);
+	    sb.append(", type: " + DDNSRecordType);
 	    
 	    return sb.toString();
 	}
