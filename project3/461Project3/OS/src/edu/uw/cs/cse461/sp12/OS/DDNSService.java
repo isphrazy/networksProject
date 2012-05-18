@@ -54,6 +54,7 @@ class DDNSService extends RPCCallable{
 		String ddnsRecordType = OS.config().getProperty("ddnsrecordtype");
 		this.ddnsRecordType = new DDNSRRecord(ddnsRecordType, hostName, ip, serverport);
     	setupddns();
+    	setupAandB();
     }
     
     public JSONObject _register(JSONObject args) throws JSONException, IOException {
@@ -137,7 +138,7 @@ class DDNSService extends RPCCallable{
 			if (ttl)
 				successMsg.put("lifetime",TTL);
 			successMsg.put("resulttype", resulttype);
-			if (record.getDDNSRecordType().equals("NS"))
+			if (record.getDDNSRecordType().equals("NS") || record.getDDNSRecordType().equals("CNAME"))
 				successMsg.put("done", false);
 			else
 				successMsg.put("done", true);
@@ -184,5 +185,16 @@ class DDNSService extends RPCCallable{
 		} catch (Exception e) {
 			System.out.println("error occured in the ddns config file");
 		}
+    }
+    
+    private void setupAandB() {
+    	DDNSRRecord a = new DDNSRRecord("A", "a.null.cse461.", this.ddnsRecordType.getIp(),
+    			this.ddnsRecordType.getPort());
+    	a.setIsAlive(true);
+    	this.ddnsMap.put("a.null.cse461.", a);
+    	
+    	DDNSRRecord b = new CNAME("CNAME","b.null.cse461",".");
+    	b.setIsAlive(true);
+    	this.ddnsMap.put("b.null.cse461.", b);
     }
 }

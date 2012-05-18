@@ -11,8 +11,9 @@ public class DDNSRRecord {
 	private String ip;
 	private int port;
 	private Timer timer;
-	private String name;
-	private String DDNSRecordType;
+	protected String name;
+	protected String DDNSRecordType;
+	private String type;
 	private boolean done;
 	
     public DDNSRRecord(){}
@@ -45,6 +46,10 @@ public class DDNSRRecord {
 	
 	public boolean isAlive() {
 		return this.isAlive;
+	}
+	
+	public void setIsAlive(boolean boo) {
+		this.isAlive = boo;
 	}
 	
 	public String getIp() {
@@ -125,8 +130,22 @@ public class DDNSRRecord {
 class CNAME extends DDNSRRecord {
 	private String alias;
 
-	public CNAME(String DDNSRecordType, String name) {
+	public CNAME(String DDNSRecordType, String name, String alias) {
 		super(DDNSRecordType, name);
+		this.alias = alias;
+	}
+	
+	@Override
+	public JSONObject toJSON() {
+		JSONObject nodeMsg = new JSONObject();
+		try {
+			nodeMsg.put("alias", this.alias);
+			nodeMsg.put("name", this.name);
+			nodeMsg.put("type", this.DDNSRecordType);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+    	return nodeMsg;
 	}
 
 }
