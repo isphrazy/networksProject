@@ -1,6 +1,5 @@
 package edu.uw.cs.cse461.sp12.OS;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
@@ -29,6 +28,7 @@ class DDNSService extends RPCCallable{
 
     @Override
     public void shutdown() {
+    	
 		// nothing to do, but have to implement to fulfill the interface promise
     }
     
@@ -81,26 +81,53 @@ class DDNSService extends RPCCallable{
     	}
     }
     
+    public JSONObject _unregister(JSONObject args) throws JSONException, IOException {
+    	try {
+    		String name = args.getString("name");
+    		String password = args.getString("password");
+    		
+    		if (!ddnsMap.containsKey(name))
+    			return exceptionMsg(new DDNSNoSuchNameException(), name);
+    		
+    		if (!ddnsHostAndPassword.get(name).equals(password))
+    			return exceptionMsg(new DDNSAuthorizationException(), name);
+    		
+    		DDNSRRecord temp = ddnsMap.get(name);
+    		temp.unregisterDDNSRecord();
+    		
+    		return successMsg(temp, "unregisterresult", false);
+    	} catch (JSONException e) {
+    		return exceptionMsg(new DDNSRuntimeException(), "");
+    	// If the value of a filed is not following the protocol
+    	} catch (Exception e) {
+    		return exceptionMsg(new DDNSRuntimeException(), "");
+    	}
+    }
+    
     public JSONObject _resolve(JSONObject args) throws JSONException, IOException {
     	String name = args.getString("name");
-    	if (this.ddnsRecordType.getName().equals(name)) {
+    	String newName = name;
+    	if (!name.endsWith("."))
+    		newName += ".";
+    	
+    	if (this.ddnsRecordType.getName().equals(newName)) {
     		return successMsg(ddnsRecordType, "resolveresult", false);
     	}
     	
-    	if (this.ddnsMap.containsKey(name)) {
-    		if (!this.ddnsMap.get(name).isAlive())
+    	if (this.ddnsMap.containsKey(newName)) {
+    		if (!this.ddnsMap.get(newName).isAlive())
     			return exceptionMsg(new DDNSNoAddressException(), name);
     	
-    		return successMsg(ddnsMap.get(name), "resolveresult", false);
+    		return successMsg(ddnsMap.get(newName), "resolveresult", false);
     	}
 
     	for (String hostName: ddnsMap.keySet()) {
-    		if (name.startsWith(hostName)) {
-    			return null;
+    		if (name.endsWith(hostName)) {
+    			return successMsg(ddnsMap.get(newName), "resolveresult", false);
     		}
     	}
     	
-    	return null;
+    	return exceptionMsg(new DDNSNoSuchNameException(), name);
     }
     
     private JSONObject successMsg(DDNSRRecord record, String resulttype, boolean ttl) {
@@ -136,7 +163,6 @@ class DDNSService extends RPCCallable{
     
     private void setupddns() {
     	try {
-			
 			if (ddnsRecordType.equals("A") || ddnsRecordType.equals("SOA") ||
 					ddnsRecordType.equals("CNAME"))
 				throw new Exception();

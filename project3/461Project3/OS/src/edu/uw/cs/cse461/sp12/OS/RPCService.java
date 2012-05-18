@@ -216,7 +216,6 @@ public class RPCService extends RPCCallable {
 					JSONObject request = tcpHandler.readMessageAsJSONObject();
 					msgId++;
 					if (!connected) {
-						
 						// check if the request follows the rpc protocol
 						String type = checkRequest(request, "handshake");
 						if (type.equals("ERROR")) {
@@ -268,7 +267,6 @@ public class RPCService extends RPCCallable {
 								tcpHandler.sendMessage(errorResponse);
 								throw new IllegalArgumentException();
 							}
-							
 							RPCCallableMethod serviceMethod = services.get(app).get(method);
 							JSONObject returnedValue = serviceMethod.handleCall(args);
 							String response = createResponseJSONMessage(id,returnedValue);

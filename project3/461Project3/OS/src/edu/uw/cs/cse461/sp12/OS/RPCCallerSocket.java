@@ -90,7 +90,7 @@ public class RPCCallerSocket extends Socket {
 			} catch (JSONException e1) {}
 		} catch (IllegalArgumentException e) {
 			try {
-				return new JSONObject().put("msg", "An error has occurd, connection is terminated");
+				return new JSONObject().put("msg", "An handshake error has occurd, connection is terminated");
 			} catch (JSONException e1) {}
 		}
 		

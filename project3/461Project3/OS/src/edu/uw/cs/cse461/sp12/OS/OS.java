@@ -32,7 +32,7 @@ public class OS {
 	// If you create a new service, add the **name of its class** to this list (almost certainly at the end).
 	// (Don't confuse this with the value returned by its appname() method.)
 	public static final String[] rpcServiceClasses = { "edu.uw.cs.cse461.sp12.OS.RPCService",
-													   "edu.uw.cs.cse461.sp12.OS.EchoService"
+													   "edu.uw.cs.cse461.sp12.OS.EchoService",
 	                                                 };
 	public static final String[] ddnsServiceClasses = { 
 														"edu.uw.cs.cse461.sp12.OS.DDNSResolverService",
@@ -199,7 +199,7 @@ public class OS {
 			OS.boot(config);
 			OS.startServices(rpcServiceClasses);
 			// not used until Project 4
-//			OS.startServices(ddnsServiceClasses);
+			OS.startServices(ddnsServiceClasses);
 
 		} catch (Exception e) {
 			Log.e(TAG, "Caught exception: " + e.getMessage());
