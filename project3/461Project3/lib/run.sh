@@ -18,7 +18,7 @@ elif [ ${COMMAND} = "ddns" ]; then
 elif [ ${COMMAND} = "nm" ]; then
     java -cp ${JARS} edu.uw.cs.cse461.sp12.OS.NameManager $* 2>/dev/null
 elif [ ${COMMAND} = "consoleddns" ]; then
-    CONFIG=../OS/$1.config.ini
+    CONFIG=../OS/$1 foo.bar.config.ini
     shift 1
     java -cp ${JARS} edu.uw.cs.cse461.sp12.OSConsoleApps.DDNS.AppManager -f ${CONFIG} $*  2>/dev/null
 elif [ ${COMMAND} = "console" ]; then

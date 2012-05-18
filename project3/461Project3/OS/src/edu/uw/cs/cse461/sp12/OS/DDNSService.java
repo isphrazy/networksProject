@@ -64,6 +64,7 @@ class DDNSService extends RPCCallable{
     
     public JSONObject _register(JSONObject args) throws JSONException, IOException {
     	try {
+    	    System.out.println("being registered...");
     		String name = args.getString("name");
     		String password = args.getString("password");
     		String ip = args.getString("ip");
@@ -77,7 +78,6 @@ class DDNSService extends RPCCallable{
     		
     		DDNSRRecord temp = ddnsMap.get(name);
     		temp.schedule(TTL, ip, port);
-    		
     		return successMsg(temp, "registerresult", true);
     	} catch (JSONException e) {
     		return exceptionMsg(new DDNSRuntimeException(), "");

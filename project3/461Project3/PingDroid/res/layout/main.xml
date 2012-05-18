@@ -4,17 +4,26 @@
     android:layout_height="fill_parent"
     android:background="@color/background"
     android:orientation="vertical">
-
-    <EditText
-        android:id="@+id/ip_et"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:hint="@string/ip_hint"
-        android:singleLine="true"
-        android:text="cse461.cs.washington.edu" >
 
-    </EditText>
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <EditText
+            android:id="@+id/ip_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:hint="@string/ip_hint"
+            android:singleLine="true"
+            android:text="null.cse461." >
+
+            <requestFocus />
+        </EditText>
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/port_et"
@@ -34,30 +43,6 @@
 
     <TextView
         android:id="@+id/ping_result_tv0"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/ping_result"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-    <TextView
-        android:id="@+id/ping_result_tv1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/ping_result"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-    <TextView
-        android:id="@+id/ping_result_tv2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/ping_result"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-    <TextView
-        android:id="@+id/ping_result_tv3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/ping_result"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-    <TextView
-        android:id="@+id/ping_result_tv4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/ping_result"

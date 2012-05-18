@@ -37,7 +37,7 @@ import android.widget.Toast;
  */
 public class PingDroidActivity extends Activity {
 	
-	private final int SIZE = 5;
+	private final int SIZE = 1;
 	
 	private Properties config;
 	
@@ -70,13 +70,15 @@ public class PingDroidActivity extends Activity {
     	
     	IPFinder.getInstance().ip = ip;
     	try {
-    		config.load(getAssets().open("jz.cse461.config.ini"));
+//    		config.load(getAssets().open("jz.cse461.config.ini"));
+    		config.load(getAssets().open("foo.bar.config.ini"));
     		OS.boot(config);
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
     	
     	OS.startServices(OS.rpcServiceClasses);
+    	OS.startServices(OS.ddnsServiceClasses);
     	
     }
     
@@ -94,7 +96,7 @@ public class PingDroidActivity extends Activity {
     		Log.e("onclick", "Ping!!");
     		String ip = ip_et.getText().toString().trim();
     		if(ip.endsWith("."))
-    		    ip.substring(0, ip.length() - 1);
+    		    ip = ip.substring(0, ip.length() - 1);
     		DDNSResolverService resolver = ((DDNSResolverService)OS.getService("ddnsresolver"));
     		if(ip.endsWith("cse461") || ip.endsWith("www")){
     		    DDNSRRecord record = resolver.resolve(ip += '.');
@@ -102,6 +104,7 @@ public class PingDroidActivity extends Activity {
     		        Toast.makeText(this, "can not resolve the given address", Toast.LENGTH_SHORT).show();
     		        return;
     		    }
+    		    Log.e("onClick", "resolved ip: " + record.getIp());
     		    ip = record.getIp();
     		}
     		
@@ -132,10 +135,6 @@ public class PingDroidActivity extends Activity {
 		ping_b = (Button) findViewById(R.id.ping_b);
 		ping_result_tvs = new TextView[SIZE];
 		ping_result_tvs[0] = (TextView) findViewById(R.id.ping_result_tv0);
-		ping_result_tvs[1] = (TextView) findViewById(R.id.ping_result_tv1);
-		ping_result_tvs[2] = (TextView) findViewById(R.id.ping_result_tv2);
-		ping_result_tvs[3] = (TextView) findViewById(R.id.ping_result_tv3);
-		ping_result_tvs[4] = (TextView) findViewById(R.id.ping_result_tv4);
 	}
 	
 	/*

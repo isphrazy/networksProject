@@ -6,6 +6,9 @@ import java.util.*;
 
 import org.json.JSONObject;
 
+import edu.uw.cs.cse461.sp12.OS.DDNSRRecord;
+import edu.uw.cs.cse461.sp12.OS.DDNSResolverService;
+import edu.uw.cs.cse461.sp12.OS.OS;
 import edu.uw.cs.cse461.sp12.OS.RPCCallerSocket;
 import edu.uw.cs.cse461.sp12.util.Log;
 
@@ -32,10 +35,21 @@ public class Ping implements OSConsoleApp {
 					String targetIP = console.readLine();
 					if ( targetIP == null ) targetIP = "";
 					else if ( targetIP.equals("exit")) break;
+					
+					String targetPort = "0";
+					if(targetIP.endsWith(".")) targetIP = targetIP.substring(0, targetIP.length() - 1);
+					if(targetIP.endsWith("cse461") || targetIP.endsWith("www")){
+					    DDNSRRecord record = ((DDNSResolverService)OS.getService("ddnsresolver")).resolve(targetIP);
+					    if(!record.isDone()){
+					        System.out.println("can't resolve given address");
+					        continue;
+					    }
+					}else{
+					    targetPort = console.readLine();
+					    System.out.print("Enter the RPC port, or empty line to exit: ");
+					    if ( targetPort == null || targetPort.isEmpty() ) continue;
+					}
 
-					System.out.print("Enter the RPC port, or empty line to exit: ");
-					String targetPort = console.readLine();
-					if ( targetPort == null || targetPort.isEmpty() ) continue;
 					
 					
 					RPCCallerSocket socket = null;
@@ -50,6 +64,7 @@ public class Ping implements OSConsoleApp {
 								+ timeTaken + " seconds");
 					}
 				} catch (Exception e) {
+				    e.printStackTrace();
 					System.out.println("Exception: " + e.getMessage());
 				}
 			}

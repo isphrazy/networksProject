@@ -86,7 +86,7 @@ public class RPCCallerSocket extends Socket {
 			e.printStackTrace();
 		} catch (IOException e) {
 			try {
-				return new JSONObject().put("msg", "An error has occurd");
+				return new JSONObject().put("msg", "An error has occurd.");
 			} catch (JSONException e1) {}
 		} catch (IllegalArgumentException e) {
 			try {
