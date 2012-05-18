@@ -10,7 +10,7 @@ public class DDNSRRecord {
 	private boolean isAlive;
 	private String ip;
 	private int port;
-	private Timer timer;
+	protected Timer timer;
 	protected String name;
 	protected String DDNSRecordType;
 	private boolean done;
@@ -33,6 +33,10 @@ public class DDNSRRecord {
 		this.ip = ip;
 		this.port = port;
 		this.timer = new Timer();
+	}
+	
+	public void terminateTimers() {
+		this.timer.cancel();
 	}
 	
     public boolean isDone() {
