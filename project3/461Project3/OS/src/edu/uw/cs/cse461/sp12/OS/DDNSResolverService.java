@@ -9,6 +9,14 @@ import java.util.TimerTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * DDNSResolverService resolves register to a ddns and provides service that
+ * resolve a ddns hostname.
+ * 
+ * @author Cheng Hao Chuang
+ * @author Pingyang He
+ * @project CSE461 12sp project 4
+ */
 public class DDNSResolverService extends RPCCallable{
 
     private String rootName;
@@ -22,7 +30,6 @@ public class DDNSResolverService extends RPCCallable{
     
     public DDNSResolverService() {
         loadConfig();
-        
         initVars();
     }
     
@@ -150,7 +157,6 @@ public class DDNSResolverService extends RPCCallable{
             else
                 timer.cancel();
         }
-	    
 	}
 	
 	/*
@@ -208,18 +214,15 @@ public class DDNSResolverService extends RPCCallable{
     /**
      * resolve a given string to ip/port
      * @param target
-     * @return
      */
 	public DDNSRRecord resolve(String target) {
         RPCCallerSocket callerSocket;
         JSONObject response = null;
-//        DDNSRRecord record = new DDNSRRecord();
         JSONObject node = null;
         String remoteName = null;
         String remotePort = null;
         JSONObject request = generateResolveJson(target);
         DDNSRRecord cacheRecord = cacheRecords.get(target);
-        
         
         if(cacheRecord != null && cacheRecord.isDone()){//cache exist
             remoteName = cacheRecord.getIp();
@@ -274,9 +277,7 @@ public class DDNSResolverService extends RPCCallable{
             cacheRecord.setIp(node.getString("ip"));
             cacheRecord.setPort(node.getInt("port"));
         } catch (Exception e) {
-            cacheRecord.setDone(false);
-            e.printStackTrace();
-            
+            cacheRecord.setDone(false);            
         } 
 		return cacheRecord;
 	}
@@ -288,10 +289,7 @@ public class DDNSResolverService extends RPCCallable{
 	    JSONObject resolveJ = new JSONObject();
 	    try {
             resolveJ.put("name", target);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        } catch (JSONException e) {}
         return resolveJ;
-	    
 	}
 }
