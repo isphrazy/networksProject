@@ -6,6 +6,7 @@ import java.util.*;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import edu.uw.cs.cse461.sp12.OS.DDNSException;
 
 /**
  * DDNSService maintains the ddns tree. If it is a SOA, it will keep track
@@ -100,19 +101,19 @@ public class DDNSService extends RPCCallable{
     		int port = args.getInt("port");
     		
     		if (!ddnsMap.containsKey(name) || !ddnsHostAndPassword.containsKey(name))
-    			return exceptionMsg(new DDNSNoSuchNameException(), name);
+    			return exceptionMsg("DDNSNoSuchNameException", "1", "No such name exists for name ",name);
     		
     		if (!ddnsHostAndPassword.get(name).equals(password))
-    			return exceptionMsg(new DDNSAuthorizationException(), name);
+    			return exceptionMsg("DDNSAuthorizationException", "3", "Bad password for ",name);
     		
     		DDNSRRecord temp = ddnsMap.get(name);
     		temp.schedule(TTL, ip, port);
     		return successMsg(temp, "registerresult", true);
     	} catch (JSONException e) {
-    		return exceptionMsg(new DDNSRuntimeException(), "");
+    		return exceptionMsg("DDNSRuntimeException", "4", "Sorry, runtimeException. I don't know what's wrong","");
     	// If the value of a filed is not following the protocol
     	} catch (Exception e) {
-    		return exceptionMsg(new DDNSRuntimeException(), "");
+    		return exceptionMsg("DDNSRuntimeException", "4", "Sorry, runtimeException. I don't know what's wrong","");
     	}
     }
     
@@ -134,20 +135,20 @@ public class DDNSService extends RPCCallable{
     		String password = args.getString("password");
     		
     		if (!ddnsMap.containsKey(name))
-    			return exceptionMsg(new DDNSNoSuchNameException(), name);
+    			return exceptionMsg("DDNSNoSuchNameException", "1", "No such name exists for name ",name);
     		
     		if (!ddnsHostAndPassword.get(name).equals(password))
-    			return exceptionMsg(new DDNSAuthorizationException(), name);
+    			return exceptionMsg("DDNSAuthorizationException", "3", "Bad password for ",name);
     		
     		DDNSRRecord temp = ddnsMap.get(name);
     		temp.unregisterDDNSRecord();
     		
     		return successMsg(temp, "unregisterresult", false);
     	} catch (JSONException e) {
-    		return exceptionMsg(new DDNSRuntimeException(), "");
+    		return exceptionMsg("DDNSRuntimeException", "4", "Sorry, runtimeException. I don't know what's wrong","");
     	// If the value of a filed is not following the protocol
     	} catch (Exception e) {
-    		return exceptionMsg(new DDNSRuntimeException(), "");
+    		return exceptionMsg("DDNSRuntimeException", "4", "Sorry, runtimeException. I don't know what's wrong","");
     	}
     }
     
@@ -173,7 +174,7 @@ public class DDNSService extends RPCCallable{
     	
     	if (this.ddnsMap.containsKey(newName)) {
     		if (!this.ddnsMap.get(newName).isAlive())
-    			return exceptionMsg(new DDNSNoAddressException(), name);
+    			return exceptionMsg("DDNSNoAddressException", "2", "No such address exists for name ",name);
     		return successMsg(ddnsMap.get(newName), "resolveresult", false);
     	}
 
@@ -182,7 +183,7 @@ public class DDNSService extends RPCCallable{
     			return successMsg(ddnsMap.get(newName), "resolveresult", false);
     		}
     	}
-    	return exceptionMsg(new DDNSNoSuchNameException(), name);
+    	return exceptionMsg("DDNSRuntimeException", "4", "Sorry, runtimeException. I don't know what's wrong","");
     }
     
     /* Constructs and returns a success json message */
@@ -204,13 +205,13 @@ public class DDNSService extends RPCCallable{
     }
     
     /* Constructs and returns a exception json message */
-    private JSONObject exceptionMsg(DDNSException exception, String name) {
+    private JSONObject exceptionMsg(String exception, String exceptionnum, String message, String name) {
     	JSONObject exceptionMsg = new JSONObject();
 		try {
-			exceptionMsg.put("resulttype", exception.resulttype);
-			exceptionMsg.put("exceptionnum", exception.getExceptionnum());
-			exceptionMsg.put("message", exception.getMessage()+name);
-			if (!(exception instanceof DDNSRuntimeException))
+			exceptionMsg.put("resulttype", "ddnsexception");
+			exceptionMsg.put("exceptionnum", exceptionnum);
+			exceptionMsg.put("message", message+name);
+			if (!exception.equals("DDNSRuntimeException"))
 				exceptionMsg.put("name", name);
 		} catch (JSONException e) {
 			e.printStackTrace();

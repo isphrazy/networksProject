@@ -233,7 +233,7 @@ public class DDNSResolverService extends RPCCallable{
         if(cacheRecord != null && cacheRecord.isDone()){//cache exist
             remoteName = cacheRecord.getIp();
             remotePort = "" + cacheRecord.getPort();
-            System.out.println("cached: name: " + remoteName + ", port: " + remotePort);
+//            System.out.println("cached: name: " + remoteName + ", port: " + remotePort);
             try {
                 callerSocket = new RPCCallerSocket(remoteName, remoteName, remotePort);
                 response = callerSocket.invoke("ddns", "resolve", request);
@@ -261,11 +261,11 @@ public class DDNSResolverService extends RPCCallable{
         try {
             int maxResolveNumber = 50;
             do{
-                System.out.println("resolve to name: " + remoteName + ", port: " + remotePort);
-                System.out.println("resolve to request: " + request);
+//                System.out.println("resolve to name: " + remoteName + ", port: " + remotePort);
+//                System.out.println("resolve to request: " + request);
                     callerSocket = new RPCCallerSocket(remoteName, remoteName, remotePort);
                 response = callerSocket.invoke("ddns", "resolve", request);
-                System.out.println("resolve response: " + response);
+//                System.out.println("resolve response: " + response);
                 //failed to resolve
                 if(response.length() < 3){
                     
