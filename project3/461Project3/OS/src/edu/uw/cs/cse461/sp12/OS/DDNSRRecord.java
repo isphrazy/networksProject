@@ -79,6 +79,11 @@ public class DDNSRRecord {
 	    DDNSRecordType = type;
 	}
 	
+	public void unregisterDDNSRecord() {
+		this.timer.cancel();
+		this.isAlive = false;
+	}
+	
 	public JSONObject toJSON() {
 		JSONObject nodeMsg = new JSONObject();
 		try {
