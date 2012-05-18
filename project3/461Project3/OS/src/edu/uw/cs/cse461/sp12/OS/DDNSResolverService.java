@@ -259,6 +259,7 @@ public class DDNSResolverService extends RPCCallable{
                 }
                 node = response.getJSONObject("node");
                 if(node.getString("type").equals("CNAME")){
+                    cacheRecords.remove(target);
                     request = generateResolveJson(node.getString("alias"));
                     remoteName = rootName;
                     remotePort = rootPort;
