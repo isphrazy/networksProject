@@ -21,7 +21,6 @@ public class DDNSResolverService extends RPCCallable{
     private boolean timerStarted;
     
     public DDNSResolverService() {
-        
         loadConfig();
         
         initVars();
@@ -55,7 +54,8 @@ public class DDNSResolverService extends RPCCallable{
 	@Override
 	public void shutdown() {
 	    timer.cancel();
-	    timerStarted = false;
+	    timer.purge();
+	    unregister(new DDNSFullName(hostName));
 	}
 	
 	/*
@@ -132,7 +132,6 @@ public class DDNSResolverService extends RPCCallable{
         MTimerTask task = new MTimerTask();
         task.hostname = hostname;
         task.myPort = myPort;
-        timer = new Timer();
         timer.scheduleAtFixedRate(task, delay, delay);
 	}
 	
@@ -173,7 +172,7 @@ public class DDNSResolverService extends RPCCallable{
 
 	/**
 	 * 
-	 * @param hostname
+	 * @param hostname is the hostname that will be unregistered
 	 * @return
 	 */
     public DDNSRRecord unregister(DDNSFullName hostname) {
@@ -193,7 +192,7 @@ public class DDNSResolverService extends RPCCallable{
     
     
     /*
-     * 
+     * generate unregister json
      */
     private JSONObject generateUnregisterJson(DDNSFullName hostname, int port){
         JSONObject registerJ = new JSONObject();
@@ -207,6 +206,12 @@ public class DDNSResolverService extends RPCCallable{
         return registerJ;
     }
 	
+    
+    /**
+     * resolve a given string to ip/port
+     * @param target
+     * @return
+     */
 	public DDNSRRecord resolve(String target) {
         RPCCallerSocket callerSocket;
         JSONObject response = null;
@@ -280,6 +285,9 @@ public class DDNSResolverService extends RPCCallable{
 		return cacheRecord;
 	}
 	
+	/*
+	 * 
+	 */
 	private JSONObject generateResolveJson(String target){
 	    JSONObject resolveJ = new JSONObject();
 	    try {
