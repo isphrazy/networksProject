@@ -15,7 +15,16 @@ public class DDNSRRecord {
 	protected String DDNSRecordType;
 	private boolean done;
 	
-    public DDNSRRecord(){}
+    public DDNSRRecord(){
+        isAlive = false;
+        ip = "";
+        port = 0;
+        name = "";
+        timer = null;
+        DDNSRecordType = "";
+        done = false;
+        
+    }
 	
 	public DDNSRRecord(String DDNSRecordType, String name) {
 		this.name = name;

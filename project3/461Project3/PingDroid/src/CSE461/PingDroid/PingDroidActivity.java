@@ -91,6 +91,12 @@ public class PingDroidActivity extends Activity {
     	if(view == ping_b){
     		Log.e("onclick", "Ping!!");
     		String ip = ip_et.getText().toString().trim();
+    		if(ip.endsWith("."))
+    		    ip.substring(0, ip.length() - 1);
+    		if(ip.endsWith("cse461") || ip.endsWith("www")){
+    		    
+    		}
+    		
     		String port = port_et.getText().toString().trim();
 			RPCCallerSocket socket = null;
 			try {
