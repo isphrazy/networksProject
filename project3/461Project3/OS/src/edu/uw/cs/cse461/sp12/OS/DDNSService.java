@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 class DDNSService extends RPCCallable{
 	public static final String[] ddnsHostNames = {};
+	
 	private static final int TTL = 60;
 	
 	// A variable capable of describing a method that can be invoked by RPC.
@@ -28,8 +29,11 @@ class DDNSService extends RPCCallable{
 
     @Override
     public void shutdown() {
-    	
-		// nothing to do, but have to implement to fulfill the interface promise
+    	this.ddnsRecordType.terminateTimers();
+    	for (String key: ddnsMap.keySet()) {
+    		ddnsMap.get(key).terminateTimers();
+    	}
+    	((DDNSResolverService)OS.getService("ddnsresolver")).unregister(new DDNSFullName(this.hostName));
     }
     
     public DDNSService() throws Exception{
@@ -47,10 +51,10 @@ class DDNSService extends RPCCallable{
 		String ip =	IPFinder.getInstance().getIp();
 		
     	((DDNSResolverService)OS.getService("ddnsresolver")).register(new DDNSFullName(this.hostName), serverport);
+    	
     	ddnsMap = new HashMap<String, DDNSRRecord>();
     	ddnsHostAndPassword = new HashMap<String, String>();
     	
-
 		String ddnsRecordType = OS.config().getProperty("ddnsrecordtype");
 		this.ddnsRecordType = new DDNSRRecord(ddnsRecordType, hostName, ip, serverport);
     	setupddns();
