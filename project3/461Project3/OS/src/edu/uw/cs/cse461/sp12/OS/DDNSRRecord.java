@@ -13,7 +13,6 @@ public class DDNSRRecord {
 	private Timer timer;
 	protected String name;
 	protected String DDNSRecordType;
-	private String type;
 	private boolean done;
 	
     public DDNSRRecord(){}
