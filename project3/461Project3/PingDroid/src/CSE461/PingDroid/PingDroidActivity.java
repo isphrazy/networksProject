@@ -10,6 +10,8 @@ import java.util.Properties;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import edu.uw.cs.cse461.sp12.OS.DDNSRRecord;
+import edu.uw.cs.cse461.sp12.OS.DDNSResolverService;
 import edu.uw.cs.cse461.sp12.OS.IPFinder;
 import edu.uw.cs.cse461.sp12.OS.OS;
 import edu.uw.cs.cse461.sp12.OS.RPCCallerSocket;
@@ -93,8 +95,14 @@ public class PingDroidActivity extends Activity {
     		String ip = ip_et.getText().toString().trim();
     		if(ip.endsWith("."))
     		    ip.substring(0, ip.length() - 1);
+    		DDNSResolverService resolver = ((DDNSResolverService)OS.getService("ddnsresolver"));
     		if(ip.endsWith("cse461") || ip.endsWith("www")){
-    		    
+    		    DDNSRRecord record = resolver.resolve(ip += '.');
+    		    if(!record.isDone()){
+    		        Toast.makeText(this, "can not resolve the given address", Toast.LENGTH_SHORT).show();
+    		        return;
+    		    }
+    		    ip = record.getIp();
     		}
     		
     		String port = port_et.getText().toString().trim();
