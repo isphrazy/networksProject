@@ -87,12 +87,14 @@ public class DDNSResolverService extends RPCCallable{
 	 * @return the regiter result
 	 */
 	public DDNSRRecord register(DDNSFullName hostname, int myPort) {
-	    
+	    System.out.println("start register");
 	    DDNSRRecord record = getAdminHost(hostname);
 	    if(record.isDone()){
 	        
 	        this.myPort = myPort;
 	        try {
+	            System.out.println("register on: " + record.getIp() + ", " + record.getPort());
+	            
 	            RPCCallerSocket callerSocket = new RPCCallerSocket(record.getIp(), record.getIp(), "" + record.getPort());
 	            JSONObject response = callerSocket.invoke("ddns", "register", generateRegisterJson(hostname, myPort));
 	            System.out.println("register reponse: " + response);
@@ -114,11 +116,10 @@ public class DDNSResolverService extends RPCCallable{
 	                startTimer(delay, hostname, myPort);
 	            }
 	            
-	        } catch (IOException excp) {
+	        } catch (Exception excp) {
+	            record.setDone(false);
 	            excp.printStackTrace();
-	        } catch (JSONException e) {
-                e.printStackTrace();
-            }
+	        } 
 	        
 	    }
 	    return record;
@@ -177,14 +178,13 @@ public class DDNSResolverService extends RPCCallable{
 	 */
     public DDNSRRecord unregister(DDNSFullName hostname) {
         timerStarted = false;
-//        DDNSRRecord record = resolve(hostname.hostname);
         DDNSRRecord record = getAdminHost(hostname);
-//        DDNSRRecord record = new DDNSRRecord();
         try {
             RPCCallerSocket callerSocket = new RPCCallerSocket(record.getIp(), record.getIp(), "" + record.getPort());
             JSONObject response = callerSocket.invoke("ddns", "unregister", generateUnregisterJson(hostname, myPort));
             System.out.println("unregister json response: " + response);
         } catch (IOException excp) {
+            record.setDone(false);
             excp.printStackTrace();
         }
         return record;
@@ -232,11 +232,11 @@ public class DDNSResolverService extends RPCCallable{
                 System.out.println("cached record resolve result: " + response.toString());
                 if(response.has("done") && response.getBoolean("done"))
                     return cacheRecord;
-            } catch (IOException e) {
+            } catch (Exception e) {
+                cacheRecord.setDone(false);
                 e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+                return cacheRecord;
+            } 
         }else{
             cacheRecords.put(target, new DDNSRRecord());
             cacheRecord = cacheRecords.get(target);
@@ -278,11 +278,11 @@ public class DDNSResolverService extends RPCCallable{
             cacheRecord.setName(node.getString("name"));
             cacheRecord.setIp(node.getString("ip"));
             cacheRecord.setPort(node.getInt("port"));
-        } catch (IOException e) {
+        } catch (Exception e) {
+            cacheRecord.setDone(false);
             e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            
+        } 
 		return cacheRecord;
 	}
 	
