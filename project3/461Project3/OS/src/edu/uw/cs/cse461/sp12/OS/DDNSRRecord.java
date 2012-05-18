@@ -150,6 +150,16 @@ public class DDNSRRecord {
 	}
 }
 
+/**
+ * CNAME is the CNAME record type
+ * It stores the ip address and port number of this instance as well as the 
+ * alias.
+ * 
+ * @author Cheng Hao Chuang
+ * @author Pingyang He
+ * @project CSE461 12sp project 4 
+ *
+ */
 class CNAME extends DDNSRRecord {
 	private String alias;
 
