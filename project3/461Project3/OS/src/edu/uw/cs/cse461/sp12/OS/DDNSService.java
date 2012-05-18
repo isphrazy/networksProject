@@ -77,12 +77,20 @@ class DDNSService extends RPCCallable{
     
     public JSONObject _resolve(JSONObject args) throws JSONException, IOException {
     	String name = args.getString("name");
-    	if (this.ddnsRecordType.getName().equals(name))
+    	if (this.ddnsRecordType.getName().equals(name)) {
+    		
+    		
+    		return null;
+    	}
+    	
+    	if (this.ddnsMap.containsKey(name))
     		return null;
     	
-    	
-    	name.split(".");
-    	
+    	for (String hostName: ddnsMap.keySet()) {
+    		if (name.startsWith(hostName)) {
+    			return null;
+    		}
+    	}
     	
     	return null;
     }
