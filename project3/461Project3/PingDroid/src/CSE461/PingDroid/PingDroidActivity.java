@@ -98,6 +98,7 @@ public class PingDroidActivity extends Activity {
     		if(ip.endsWith("."))
     		    ip = ip.substring(0, ip.length() - 1);
     		DDNSResolverService resolver = ((DDNSResolverService)OS.getService("ddnsresolver"));
+    		String port = "";
     		if(ip.endsWith("cse461") || ip.endsWith("www")){
     		    DDNSRRecord record = resolver.resolve(ip += '.');
     		    if(!record.isDone()){
@@ -106,9 +107,12 @@ public class PingDroidActivity extends Activity {
     		    }
     		    Log.e("onClick", "resolved ip: " + record.getIp());
     		    ip = record.getIp();
+    		    port = "" + record.getPort();
+    		}else{
+    		    port = port_et.getText().toString().trim();
+    		    
     		}
     		
-    		String port = port_et.getText().toString().trim();
 			RPCCallerSocket socket = null;
 			try {
 				for(int i = 0; i < SIZE; i ++){

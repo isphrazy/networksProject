@@ -117,7 +117,6 @@ public class DDNSResolverService extends RPCCallable{
 	            
 	        } catch (Exception excp) {
 	            result.setDone(false);
-	            excp.printStackTrace();
 	        } 
 	        
 	    }
@@ -164,7 +163,6 @@ public class DDNSResolverService extends RPCCallable{
             registerJ.put("password", password);
             registerJ.put("ip", IPFinder.getIp());
         } catch (JSONException excp) {
-            excp.printStackTrace();
         }
         return registerJ;
     }
@@ -184,7 +182,6 @@ public class DDNSResolverService extends RPCCallable{
             JSONObject response = callerSocket.invoke("ddns", "unregister", generateUnregisterJson(hostname, myPort));
         } catch (IOException excp) {
             result.setDone(false);
-            excp.printStackTrace();
         }
         return result;
 	}
@@ -198,9 +195,7 @@ public class DDNSResolverService extends RPCCallable{
         try {
             registerJ.put("name", hostname.hostname.trim());
             registerJ.put("password", password);
-        } catch (JSONException excp) {
-            excp.printStackTrace();
-        }
+        } catch (JSONException excp) {}
         return registerJ;
     }
 	
@@ -231,7 +226,6 @@ public class DDNSResolverService extends RPCCallable{
                     return cacheRecord;
             } catch (Exception e) {
                 cacheRecord.setDone(false);
-                e.printStackTrace();
                 return cacheRecord;
             } 
         }else{
@@ -275,7 +269,6 @@ public class DDNSResolverService extends RPCCallable{
             cacheRecord.setPort(node.getInt("port"));
         } catch (Exception e) {
             cacheRecord.setDone(false);
-            e.printStackTrace();
             
         } 
 		return cacheRecord;
@@ -289,7 +282,6 @@ public class DDNSResolverService extends RPCCallable{
 	    try {
             resolveJ.put("name", target);
         } catch (JSONException e) {
-            e.printStackTrace();
         }
         return resolveJ;
 	    
