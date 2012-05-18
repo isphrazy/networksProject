@@ -14,6 +14,9 @@ class DDNSService extends RPCCallable{
 	
 	// A variable capable of describing a method that can be invoked by RPC.
 	private RPCCallableMethod<DDNSService> ddns;
+	private RPCCallableMethod<DDNSService> resolve;
+
+	
 	private Map<String, DDNSRRecord> ddnsMap;
 	private Map<String, String> ddnsHostAndPassword;
 	private String hostName;
@@ -35,6 +38,10 @@ class DDNSService extends RPCCallable{
 		// Register the method with the RPC service as externally invocable method "register"
 		((RPCService)OS.getService("rpc")).registerHandler(servicename(), "register", ddns );
 		
+		resolve = new RPCCallableMethod<DDNSService>(this, "_resolve");
+		((RPCService)OS.getService("rpc")).registerHandler(servicename(), "resolve", resolve );
+
+		
 		int serverport = Integer.parseInt(OS.config().getProperty("rpc.serverport"));
     	this.hostName = OS.config().getProperty("host.name");
 		String ip =	IPFinder.getInstance().getIp();
@@ -43,9 +50,8 @@ class DDNSService extends RPCCallable{
     	ddnsMap = new HashMap<String, DDNSRRecord>();
     	ddnsHostAndPassword = new HashMap<String, String>();
     	
-    	Properties config= new Properties();
-		config.load(new FileInputStream("ddnsservice.config.ini"));
-		String ddnsRecordType = config.getProperty("ddnsrecordtype");
+
+		String ddnsRecordType = OS.config().getProperty("ddnsrecordtype");
 		this.ddnsRecordType = new DDNSRRecord(ddnsRecordType, hostName, ip, serverport);
     	setupddns();
     }
@@ -66,7 +72,7 @@ class DDNSService extends RPCCallable{
     		DDNSRRecord temp = ddnsMap.get(name);
     		temp.schedule(TTL, ip, port);
     		
-    		return successMsg(temp, "registerresult");
+    		return successMsg(temp, "registerresult", true);
     	} catch (JSONException e) {
     		return exceptionMsg(new DDNSRuntimeException(), "");
     	// If the value of a filed is not following the protocol
@@ -78,14 +84,16 @@ class DDNSService extends RPCCallable{
     public JSONObject _resolve(JSONObject args) throws JSONException, IOException {
     	String name = args.getString("name");
     	if (this.ddnsRecordType.getName().equals(name)) {
-    		
-    		
-    		return null;
+    		return successMsg(ddnsRecordType, "resolveresult", false);
     	}
     	
-    	if (this.ddnsMap.containsKey(name))
-    		return null;
+    	if (this.ddnsMap.containsKey(name)) {
+    		if (!this.ddnsMap.get(name).isAlive())
+    			return exceptionMsg(new DDNSNoAddressException(), name);
     	
+    		return successMsg(ddnsMap.get(name), "resolveresult", false);
+    	}
+
     	for (String hostName: ddnsMap.keySet()) {
     		if (name.startsWith(hostName)) {
     			return null;
@@ -95,11 +103,12 @@ class DDNSService extends RPCCallable{
     	return null;
     }
     
-    private JSONObject successMsg(DDNSRRecord record, String resulttype) {
+    private JSONObject successMsg(DDNSRRecord record, String resulttype, boolean ttl) {
     	JSONObject successMsg = new JSONObject();
 		try {
 			successMsg.put("node", record.toJSON());
-			successMsg.put("lifetime",TTL);
+			if (ttl)
+				successMsg.put("lifetime",TTL);
 			successMsg.put("resulttype", resulttype);
 			if (record.getDDNSRecordType().equals("NS"))
 				successMsg.put("done", false);
@@ -127,8 +136,6 @@ class DDNSService extends RPCCallable{
     
     private void setupddns() {
     	try {
-			Properties config = new Properties();
-			config.load(new FileInputStream("ddnsservice.config"));
 			
 			if (ddnsRecordType.equals("A") || ddnsRecordType.equals("SOA") ||
 					ddnsRecordType.equals("CNAME"))
@@ -136,9 +143,9 @@ class DDNSService extends RPCCallable{
 			
 			if (ddnsRecordType.equals("SOA")) {
 				for (String hostName: ddnsHostNames) {
-					String ddnsRecordType = config.getProperty(hostName+"recordtype");
+					String ddnsRecordType = OS.config().getProperty(hostName+"recordtype");
 					ddnsMap.put(hostName, new DDNSRRecord(ddnsRecordType, hostName));
-					String hostNamePassword = config.getProperty(hostName+"password");
+					String hostNamePassword = OS.config().getProperty(hostName+"password");
 					ddnsHostAndPassword.put(hostName, hostNamePassword);
 				}
 			}
