@@ -1,5 +1,14 @@
 package edu.uw.cs.cse461.sp12.OS;
 
+/**
+ * DDNSException and its subclasses are exceptions being used to disclose
+ * useful information to the RPC clients.
+ * 
+ * @author Cheng Hao Chuang
+ * @author Pingyang He
+ * @project CSE461 12sp project 4 
+ *
+ */
 @SuppressWarnings("serial")
 public class DDNSException extends Exception {
 	public String resulttype = "ddnsexception";
@@ -20,6 +29,9 @@ public class DDNSException extends Exception {
 	}
 }
 
+/**
+ * Thrown when the name doesn't exist in the namespace
+ */
 class DDNSNoSuchNameException extends DDNSException {
 	public int exceptionnum = 1;
 	public String message = "No such name exists for name ";
@@ -38,6 +50,10 @@ class DDNSNoSuchNameException extends DDNSException {
 	}
 }
 	
+/**
+ * The name resolved to a node, but there is no address currently associated
+ * with that name. 
+ */
 class DDNSNoAddressException extends DDNSException {
 	public int exceptionnum = 2;
 	public String message = "No such address exists for name ";
@@ -55,7 +71,11 @@ class DDNSNoAddressException extends DDNSException {
 		return message;
 	}
 }
-	
+
+/**
+ * Thrown when an operation requiring a password is requested, but the correct
+ * password has not been supplied
+ */
 class DDNSAuthorizationException extends DDNSException {
 	public int exceptionnum = 3;
 	public String message = "Bad password for ";
@@ -73,7 +93,12 @@ class DDNSAuthorizationException extends DDNSException {
 		return message;
 	}
 }
-	
+
+/**
+ * This is a catch-all exception class, used to report anything that goes wrong
+ * not falling into one of the five other exception types. The message is 
+ * intended to be useful to the caller in determining what went wrong
+ */
 class DDNSRuntimeException extends DDNSException {
 	public int exceptionnum = 4;
 	public String message = "Sorry, runtimeException. I don't know what's wrong";
@@ -91,7 +116,12 @@ class DDNSRuntimeException extends DDNSException {
 		return message;
 	}
 }
-	
+
+/**
+ * Some resolution step limit used to deal with possible naming loops went to
+ * zero before the name was resolved. The name may or may not exist, but in
+ * any case couldn't be resolved
+ */
 class DDNSTTLExpiredException extends DDNSException {
 	public int exceptionnum = 5;
 	public String message = "ttl expired before we can resolve for ";
@@ -109,7 +139,11 @@ class DDNSTTLExpiredException extends DDNSException {
 		return message;
 	}
 }
-	
+
+/**
+ * The name server was asked to resolve a name not in its zone (the subtree
+ * of the namespace rooted at the server's SOA name)
+ */
 class DDNSZoneException extends DDNSException {
 	public int exceptionnum = 6;
 	public String message = "This zone does not contain ";

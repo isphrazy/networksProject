@@ -224,6 +224,10 @@ public class DDNSResolverService extends RPCCallable{
                 response = callerSocket.invoke("ddns", "resolve", request);
                 if(response.has("done") && response.getBoolean("done"))
                     return cacheRecord;
+                else if(response.has("exceptionnum") && response.getInt("exceptionnum") == 2){
+                    cacheRecord.setDone(false);
+                    return cacheRecord;
+                }
             } catch (Exception e) {
                 cacheRecord.setDone(false);
                 return cacheRecord;
