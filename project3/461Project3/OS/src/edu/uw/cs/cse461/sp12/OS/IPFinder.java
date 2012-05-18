@@ -37,4 +37,14 @@ public class IPFinder {
 		}
 		return ip;
 	}
+	
+	public static String getCurrentIp(){
+	    String currentIp = null;
+	    try {
+	        currentIp = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+	    return currentIp;
+	}
 }

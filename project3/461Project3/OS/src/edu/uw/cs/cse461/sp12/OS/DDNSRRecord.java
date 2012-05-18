@@ -13,6 +13,10 @@ public class DDNSRRecord {
 	private Timer timer;
 	private String name;
 	private String DDNSRecordType;
+	private String type;
+	private boolean success;
+	
+    public DDNSRRecord(){}
 	
 	public DDNSRRecord(String DDNSRecordType, String name) {
 		this.name = name;
@@ -32,6 +36,14 @@ public class DDNSRRecord {
 		this.timer = new Timer();
 	}
 	
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+	
 	public boolean isAlive() {
 		return this.isAlive;
 	}
@@ -40,8 +52,28 @@ public class DDNSRRecord {
 		return ip;
 	}
 	
+	public void setIp(String ip){
+	    this.ip = ip;
+	}
+	
 	public String getName() {
 		return name;
+	}
+	
+	public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+	
+	public void setName(String name){
+	    this.name = name;
+	}
+	
+	public void setPort(int port){
+	    this.port = port;
 	}
 	
 	public int getPort() {
