@@ -9,6 +9,9 @@ import java.util.TimerTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import edu.uw.cs.cse461.sp12.OS.DDNSException.DDNSNoAddressException;
+import edu.uw.cs.cse461.sp12.OS.DDNSException.DDNSNoSuchNameException;
+
 /**
  * DDNSResolverService resolves register to a ddns and provides service that
  * resolve a ddns hostname.
@@ -81,7 +84,13 @@ public class DDNSResolverService extends RPCCallable{
                 record.setIp(rootName);
                 record.setPort(Integer.parseInt(rootPort));
             }else{
-                record = resolve(currentHostname.substring(currentHostname.indexOf('.') + 1, currentHostname.length()));
+                try {
+                    record = resolve(currentHostname.substring(currentHostname.indexOf('.') + 1, currentHostname.length()));
+                } catch (DDNSNoAddressException e) {
+                    e.printStackTrace();
+                } catch (DDNSNoSuchNameException e) {
+                    e.printStackTrace();
+                }
             }
         }
 	    return record;
@@ -209,8 +218,10 @@ public class DDNSResolverService extends RPCCallable{
     /**
      * resolve a given string to ip/port
      * @param target
+     * @throws DDNSNoAddressException 
+     * @throws DDNSNoSuchNameException 
      */
-	public DDNSRRecord resolve(String target) {
+	public DDNSRRecord resolve(String target) throws DDNSNoAddressException, DDNSNoSuchNameException {
         RPCCallerSocket callerSocket;
         JSONObject response = null;
         JSONObject node = null;
@@ -222,19 +233,23 @@ public class DDNSResolverService extends RPCCallable{
         if(cacheRecord != null && cacheRecord.isDone()){//cache exist
             remoteName = cacheRecord.getIp();
             remotePort = "" + cacheRecord.getPort();
+            System.out.println("cached: name: " + remoteName + ", port: " + remotePort);
             try {
                 callerSocket = new RPCCallerSocket(remoteName, remoteName, remotePort);
                 response = callerSocket.invoke("ddns", "resolve", request);
                 if(response.has("done") && response.getBoolean("done"))
                     return cacheRecord;
                 else if(response.has("exceptionnum") && response.getInt("exceptionnum") == 2){
-                    cacheRecord.setDone(false);
-                    return cacheRecord;
+                    throw new DDNSNoAddressException();
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 cacheRecord.setDone(false);
                 return cacheRecord;
-            } 
+            } catch (JSONException e) {
+                cacheRecord.setDone(false);
+                return cacheRecord;
+            }
+            
         }else{
             cacheRecords.put(target, new DDNSRRecord());
             cacheRecord = cacheRecords.get(target);
@@ -246,12 +261,22 @@ public class DDNSResolverService extends RPCCallable{
         try {
             int maxResolveNumber = 50;
             do{
-                callerSocket = new RPCCallerSocket(remoteName, remoteName, remotePort);
+                System.out.println("resolve to name: " + remoteName + ", port: " + remotePort);
+                System.out.println("resolve to request: " + request);
+                    callerSocket = new RPCCallerSocket(remoteName, remoteName, remotePort);
                 response = callerSocket.invoke("ddns", "resolve", request);
+                System.out.println("resolve response: " + response);
                 //failed to resolve
-                if(response.length() < 3 || response.getString("resulttype").equals("ddnsexception")){
+                if(response.length() < 3){
+                    
                     cacheRecord.setDone(false);
                     return cacheRecord;
+                }
+                if(response.has("resulttype") && response.getString("resulttype").equals("ddnsexception")){
+                    if(response.getInt("exceptionnum") == 2)
+                        throw new DDNSNoAddressException();
+                    if(response.getInt("exceptionnum") == 1)
+                        throw new DDNSNoSuchNameException();
                 }
                 node = response.getJSONObject("node");
                 if(node.getString("type").equals("CNAME")){
@@ -274,9 +299,14 @@ public class DDNSResolverService extends RPCCallable{
             cacheRecord.setName(node.getString("name"));
             cacheRecord.setIp(node.getString("ip"));
             cacheRecord.setPort(node.getInt("port"));
-        } catch (Exception e) {
-            cacheRecord.setDone(false);
-        } 
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
 		return cacheRecord;
 	}
 	
