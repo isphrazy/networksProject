@@ -41,9 +41,16 @@ public class DDNSResolverService extends RPCCallable{
 
 	@Override
 	public void shutdown() {
-		// TODO Auto-generated method stub
+	    timerStarted = false;
 	}
 	
+	
+	/**
+	 * register the given hostname to corresponding soa
+	 * @param hostname is the hostname that will be registered
+	 * @param myPort is the port service will be using
+	 * @return the regiter result
+	 */
 	public DDNSRRecord register(DDNSFullName hostname, int myPort) {
 	    String currentHostname = hostname.hostname;
 //	    DDNSRRecord result = new DDNSRRecord();
