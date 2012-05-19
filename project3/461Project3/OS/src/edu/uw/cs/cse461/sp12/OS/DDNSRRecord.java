@@ -23,6 +23,7 @@ public class DDNSRRecord {
 	protected String name;
 	protected String DDNSRecordType;
 	private boolean done;
+	private boolean exist;
 	
     public DDNSRRecord(){
         isAlive = false;
@@ -32,7 +33,7 @@ public class DDNSRRecord {
         timer = null;
         DDNSRecordType = "";
         done = false;
-        
+        exist = true;
     }
 	
 	public DDNSRRecord(String DDNSRecordType, String name) {
@@ -41,6 +42,7 @@ public class DDNSRRecord {
 		this.DDNSRecordType = DDNSRecordType;
 		this.ip = "";
 		this.port = -1;
+	    this.exist = true;
 	}
 	
 	public DDNSRRecord(String DDNSRecordType, String name, String ip, int port) {
@@ -49,6 +51,7 @@ public class DDNSRRecord {
 		this.DDNSRecordType = DDNSRecordType;
 		this.ip = ip;
 		this.port = port;
+		this.exist = true;
 	}
 	
 	public void terminateTimers() {
@@ -148,6 +151,14 @@ public class DDNSRRecord {
 	    
 	    return sb.toString();
 	}
+
+    public boolean isExist() {
+        return exist;
+    }
+
+    public void setExist(boolean exist) {
+        this.exist = exist;
+    }
 }
 
 /**
