@@ -12,7 +12,6 @@
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
         <javaElement handleIdentifier="=OS/utilSrc"/>
-        <file path="/OS/src/.DS_Store"/>
-        <javaElement handleIdentifier="=OS/src&lt;edu.uw.cs.cse461.sp12.OS"/>
+        <javaElement handleIdentifier="=OS/src"/>
     </selectedElements>
 </jardesc>
