@@ -41,7 +41,7 @@ public class DDNSRRecord {
 		this.isAlive = false;
 		this.DDNSRecordType = DDNSRecordType;
 		this.ip = "";
-		this.port = -1;
+		this.port = 0;
 	    this.exist = true;
 	}
 	

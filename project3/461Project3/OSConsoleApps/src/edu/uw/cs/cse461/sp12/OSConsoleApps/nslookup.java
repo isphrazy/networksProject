@@ -61,7 +61,7 @@ public class nslookup implements OSConsoleApp {
 					record = ((DDNSResolverService)OS.getService("ddnsresolver")).resolve(targetStr);
 					System.out.println( targetStr + ":  [" + record.toString() + "]");
 				} catch (DDNSNoAddressException nae) {
-					System.out.println("No address is currently assoicated with that name");
+					System.out.println("No address is currently associated with that name");
 				} catch (DDNSNoSuchNameException nsne) {
 					System.out.println("No such name: " + targetStr);
 				} catch (Exception e) {

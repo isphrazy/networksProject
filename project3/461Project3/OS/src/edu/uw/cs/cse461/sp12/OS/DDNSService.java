@@ -68,8 +68,12 @@ public class DDNSService extends RPCCallable{
 		int serverport = Integer.parseInt(OS.config().getProperty("rpc.serverport"));
     	this.hostName = OS.config().getProperty("host.name");
 		String ip =	IPFinder.getInstance().getIp();
-		
-    	((DDNSResolverService)OS.getService("ddnsresolver")).register(new DDNSFullName(this.hostName), serverport);
+		try{
+		    ((DDNSResolverService)OS.getService("ddnsresolver")).register(new DDNSFullName(this.hostName), serverport);
+		}catch (Exception e){
+		    System.out.println("failed to register");
+		    return;
+		}
     	
     	ddnsMap = new HashMap<String, DDNSRRecord>();
     	ddnsHostAndPassword = new HashMap<String, String>();

@@ -10,6 +10,8 @@ import java.util.Properties;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import edu.uw.cs.cse461.sp12.OS.DDNSException.DDNSNoAddressException;
+import edu.uw.cs.cse461.sp12.OS.DDNSException.DDNSNoSuchNameException;
 import edu.uw.cs.cse461.sp12.OS.DDNSRRecord;
 import edu.uw.cs.cse461.sp12.OS.DDNSResolverService;
 import edu.uw.cs.cse461.sp12.OS.IPFinder;
@@ -100,7 +102,17 @@ public class PingDroidActivity extends Activity {
     		DDNSResolverService resolver = ((DDNSResolverService)OS.getService("ddnsresolver"));
     		String port = "";
     		if(ip.endsWith("cse461") || ip.endsWith("www")){
-    		    DDNSRRecord record = resolver.resolve(ip += '.');
+    		    DDNSRRecord record = new DDNSRRecord();
+                try {
+                    record = resolver.resolve(ip += '.');
+                    Log.e("onClick", "resolved ip: " + record.getIp());
+                } catch (DDNSNoAddressException e) {
+                    Toast.makeText(this, "address doesn't exist", Toast.LENGTH_SHORT).show();
+                    return;
+                } catch (DDNSNoSuchNameException e) {
+                    Toast.makeText(this, "name doesn't exist", Toast.LENGTH_SHORT).show();
+                    return;
+                }
     		    if(!record.isDone()){
     		        Toast.makeText(this, "can not resolve the given address", Toast.LENGTH_SHORT).show();
     		        return;

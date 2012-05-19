@@ -230,13 +230,13 @@ public class DDNSResolverService extends RPCCallable{
         DDNSRRecord cacheRecord = cacheRecords.get(target);
         
         if(cacheRecord != null){//cache exist
+//            System.out.println("cached: name: " + remoteName + ", port: " + remotePort);
             if(!cacheRecord.isExist()){
                 throw new DDNSNoSuchNameException();
             }
             if(cacheRecord.isDone()){
                 remoteName = cacheRecord.getIp();
                 remotePort = "" + cacheRecord.getPort();
-//            System.out.println("cached: name: " + remoteName + ", port: " + remotePort);
                 try {
                     callerSocket = new RPCCallerSocket(remoteName, remoteName, remotePort);
                     response = callerSocket.invoke("ddns", "resolve", request);
@@ -269,7 +269,7 @@ public class DDNSResolverService extends RPCCallable{
 //                System.out.println("resolve to request: " + request);
                 callerSocket = new RPCCallerSocket(remoteName, remoteName, remotePort);
                 response = callerSocket.invoke("ddns", "resolve", request);
-                System.out.println("resolve response: " + response);
+//                System.out.println("resolve response: " + response);
                 //failed to resolve
                 if(response.length() < 3){
                     cacheRecord.setDone(false);
@@ -313,7 +313,7 @@ public class DDNSResolverService extends RPCCallable{
 	}
 	
 	/*
-	 * 
+	 * generate the resolve json object
 	 */
 	private JSONObject generateResolveJson(String target){
 	    JSONObject resolveJ = new JSONObject();
