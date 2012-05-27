@@ -23,11 +23,11 @@
 		            android:id="@+id/textView1"
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
-		            android:text="Current IP and Port: "
+		            android:text="Current IP: "
 		            android:textAppearance="?android:attr/textAppearanceMedium" />
-		
+		
 		        <TextView
-		            android:id="@+id/ip_port_tv"
+		            android:id="@+id/ip_tv"
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"
 		            android:text="Loading..."
@@ -75,6 +75,7 @@
 		            android:layout_width="fill_parent"
 		            android:layout_height="wrap_content"
 		            android:layout_marginTop="10dp"
+		            android:onClick="takePic"
 		            android:text="Take Picture" />
 		
 		        <Button
@@ -82,6 +83,7 @@
 		            android:layout_width="fill_parent"
 		            android:layout_height="wrap_content"
 		            android:layout_marginTop="10dp"
+		            android:onClick="choosePic"
 		            android:text="Choose Picture" />
 		
 		        <Button
@@ -89,6 +91,7 @@
 		            android:layout_width="fill_parent"
 		            android:layout_height="wrap_content"
 		            android:layout_marginTop="10dp"
+		            android:onClick="updatePic"
 		            android:text="Update Pictures" />
 		
 		    </LinearLayout>

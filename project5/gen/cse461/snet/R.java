@@ -20,7 +20,7 @@ public final class R {
         public static final int button4=0x7f050011;
         public static final int choose_pic_bt=0x7f05000b;
         public static final int chosen_pic_iv=0x7f050008;
-        public static final int ip_port_tv=0x7f050004;
+        public static final int ip_tv=0x7f050004;
         public static final int linearLayout1=0x7f050002;
         public static final int linearLayout2=0x7f050009;
         public static final int linearLayout3=0x7f050001;

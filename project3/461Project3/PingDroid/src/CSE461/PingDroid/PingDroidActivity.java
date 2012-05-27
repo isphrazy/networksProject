@@ -57,7 +57,6 @@ public class PingDroidActivity extends Activity {
         getLayouts();
         config = new Properties();
         
-        
     }
     
     /**
