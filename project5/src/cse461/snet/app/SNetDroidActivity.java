@@ -1,5 +1,6 @@
-package cse461.snet;
+package cse461.snet.app;
 
+import cse461.snet.R;
 import android.app.Activity;
 import android.os.Bundle;
 

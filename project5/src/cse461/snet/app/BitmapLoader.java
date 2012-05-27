@@ -1,4 +1,4 @@
-package edu.uw.cs.cse461.sp12.SNet;
+package cse461.snet.app;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
