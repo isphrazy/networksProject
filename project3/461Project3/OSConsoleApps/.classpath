@@ -7,5 +7,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/OS"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/org.json.jar"/>
+	<classpathentry kind="lib" path="lib/OS.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
