@@ -6,11 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-//import cse461.snet.util.DB461;
-//import cse461.snet.util.DB461.DB461Exception;
-//import cse461.snet.util.DB461.DBRecordIterator;
 import cse461.snet.os.ContextManager;
-//import cse461.snet.util.Log;
 
 //----------------------------------------
 // Android version
