@@ -25,6 +25,7 @@ public class UpdatePicPage extends Activity {
     
     private void initVars() {
         spinner = (Spinner) findViewById(R.id.spinner);
+//        spinner.setSelection(0);
     }
 
 

@@ -111,9 +111,13 @@ public class DDNSResolverService extends RPCCallable{
 	        
 	        this.myPort = myPort;
 	        try {
+	            System.out.println("ip: " + record.getIp());
+	            System.out.println("port: " + record.getPort());
 	            
 	            RPCCallerSocket callerSocket = new RPCCallerSocket(record.getIp(), record.getIp(), "" + record.getPort());
-	            JSONObject response = callerSocket.invoke("ddns", "register", generateRegisterJson(hostname, myPort));
+	            JSONObject sendJson = generateRegisterJson(hostname, myPort);
+	            
+	            JSONObject response = callerSocket.invoke("ddns", "register", sendJson);
 	            if(response.length() < 3 || response.getString("resulttype").equals("ddnsexception")){
 	                result.setDone(false);
 	                return result;
