@@ -111,8 +111,8 @@ public class DDNSResolverService extends RPCCallable{
 	        
 	        this.myPort = myPort;
 	        try {
-	            System.out.println("ip: " + record.getIp());
-	            System.out.println("port: " + record.getPort());
+//	            System.out.println("ip: " + record.getIp());
+//	            System.out.println("port: " + record.getPort());
 	            
 	            RPCCallerSocket callerSocket = new RPCCallerSocket(record.getIp(), record.getIp(), "" + record.getPort());
 	            JSONObject sendJson = generateRegisterJson(hostname, myPort);
