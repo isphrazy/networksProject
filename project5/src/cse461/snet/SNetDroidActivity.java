@@ -53,10 +53,6 @@ public class SNetDroidActivity extends Activity {
         startActivity(i);
     }
     
-
-
-
-    
     /**
      * start OS
      */
