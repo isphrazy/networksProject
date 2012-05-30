@@ -37,6 +37,7 @@ public class UpdatePicPage extends Activity {
     		if (db != null)
     			db.discard();
     	}
+    	
         spinner = (Spinner) findViewById(R.id.spinner);
         try {
 			RecordSet<CommunityRecord> allRecords = db.COMMUNITYTABLE.readAll();

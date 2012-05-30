@@ -153,6 +153,7 @@ public class TCPMessageHandler {
 			throw new IOException("TCPMessageHandler.readFromStream: read of zero bytes requested");
 		}
 		// debug ----------
+		System.out.println("readFromStream: " + nBytes);
 		byte[] buf = new byte[nBytes];
 		int totalRead = 0;
 		try {

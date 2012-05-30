@@ -1,12 +1,14 @@
 package edu.uw.cs.cse461.sp12.OS;
 
 import android.content.Context;
-
 public class ContextManager {
-
-    public static Context getContext() {
-        // TODO Auto-generated method stub
-        return null;
+    private static Context mContext;
+    
+    public static void setContext(Context context) {
+        mContext = context;
     }
-
+    public static Context getContext() {
+        return mContext;
+    }
+    
 }

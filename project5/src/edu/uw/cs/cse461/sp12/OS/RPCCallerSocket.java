@@ -78,6 +78,7 @@ public class RPCCallerSocket extends Socket {
 				msgId++;
 				String handShakeMessage = createHandShakeJsonMessage();
 				tcpHandler.sendMessage(handShakeMessage);
+//				System.out.println("handshake message: " + handShakeMessage);
 				respond = tcpHandler.readMessageAsString();
 				if (!checkResponse(respond, "handshake"))
 					throw new IllegalArgumentException();
