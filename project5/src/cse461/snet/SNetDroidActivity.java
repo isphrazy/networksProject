@@ -1,5 +1,8 @@
 package cse461.snet;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 import cse461.snet.R;
@@ -9,20 +12,33 @@ import edu.uw.cs.cse461.sp12.OS.OS;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager.OnActivityResultListener;
 import android.provider.MediaStore;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class SNetDroidActivity extends Activity {
     
+    private final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1;
+    private final int CHOOSE_PICTURE_ACTIVITY_REQUEST_CODE = 2;
+    private final String My_PICTURE_NAME = "my_picture.png";
+    private final String PICTURE_FOLDER = "snet_pics/";
+    
     private Properties config;
-    private int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1;
+    private ImageView myPicIv;
+    private ImageView chosenPicIv;
+    
+    
     
     /** Called when the activity is first created. */
     @Override
@@ -30,9 +46,16 @@ public class SNetDroidActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         ContextManager.setContext(getApplicationContext());
-        config = new Properties();
+        
+        initVars();
     }
     
+    private void initVars() {
+        config = new Properties();
+        myPicIv = (ImageView) findViewById(R.id.my_pic_iv);
+        chosenPicIv = (ImageView) findViewById(R.id.chosen_pic_iv);
+    }
+
     /**
      * will be called when take picture button is clicked
      * @param view
@@ -43,7 +66,33 @@ public class SNetDroidActivity extends Activity {
     }
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        Bitmap takedPhoto = (Bitmap) data.getExtras().get("data");
+        if(requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE){
+            
+            Bitmap takedPhoto = (Bitmap) data.getExtras().get("data");
+            
+            myPicIv.setImageBitmap(takedPhoto);
+//            String dirName = "";
+            File sdCard = Environment.getExternalStorageDirectory();
+            File dir = new File (sdCard.getAbsolutePath() + "/" + PICTURE_FOLDER);
+            dir.mkdirs();
+            //File file = new File(this.getExternalFilesDir(null), this.dirName+fileName); //this function give null pointer exception so im using other one
+            File file = new File(dir, My_PICTURE_NAME);
+            
+//        resizedBitmap.compress(CompressFormat.PNG, 100, os);
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+                takedPhoto.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                fos.flush();
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            
+        }else if(requestCode == CHOOSE_PICTURE_ACTIVITY_REQUEST_CODE){
+            
+        }
+        
+        
     }
     
     /**
@@ -52,6 +101,16 @@ public class SNetDroidActivity extends Activity {
      */
     public void choosePic(View view){
         
+        // Try to update gallery viewer
+        Log.e("onActivityResult: ", "file://" + Environment.getExternalStorageDirectory());
+        sendBroadcast(new Intent(
+                Intent.ACTION_MEDIA_MOUNTED,
+                Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+        
+        Intent intent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        startActivityForResult(intent, CHOOSE_PICTURE_ACTIVITY_REQUEST_CODE);
     }
     
     /**
@@ -81,8 +140,8 @@ public class SNetDroidActivity extends Activity {
             e.printStackTrace();
         }
         
-        OS.startServices(OS.rpcServiceClasses);
-        OS.startServices(OS.ddnsServiceClasses);
+//        OS.startServices(OS.rpcServiceClasses);
+//        OS.startServices(OS.ddnsServiceClasses);
     }
     
     
