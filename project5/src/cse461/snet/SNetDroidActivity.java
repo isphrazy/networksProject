@@ -9,6 +9,8 @@ import cse461.snet.R;
 import edu.uw.cs.cse461.sp12.OS.ContextManager;
 import edu.uw.cs.cse461.sp12.OS.IPFinder;
 import edu.uw.cs.cse461.sp12.OS.OS;
+import edu.uw.cs.cse461.sp12.util.DB461.DB461Exception;
+import edu.uw.cs.cse461.sp12.util.DB461SQLite;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -33,10 +35,13 @@ public class SNetDroidActivity extends Activity {
     private final int CHOOSE_PICTURE_ACTIVITY_REQUEST_CODE = 2;
     private final String My_PICTURE_NAME = "my_picture.png";
     private final String PICTURE_FOLDER = "snet_pics/";
+    private final String MY_PICTURE_FOLDER = "my_pics/";
+    private final String DATABASE_NAME = "";
     
     private Properties config;
     private ImageView myPicIv;
     private ImageView chosenPicIv;
+    private DB461SQLite database;
     
     
     
@@ -54,6 +59,11 @@ public class SNetDroidActivity extends Activity {
         config = new Properties();
         myPicIv = (ImageView) findViewById(R.id.my_pic_iv);
         chosenPicIv = (ImageView) findViewById(R.id.chosen_pic_iv);
+        try {
+            database = MDb.getInstance(DATABASE_NAME);
+        } catch (DB461Exception excp) {
+            excp.printStackTrace();
+        }
     }
 
     /**
@@ -73,12 +83,18 @@ public class SNetDroidActivity extends Activity {
             myPicIv.setImageBitmap(takedPhoto);
 //            String dirName = "";
             File sdCard = Environment.getExternalStorageDirectory();
-            File dir = new File (sdCard.getAbsolutePath() + "/" + PICTURE_FOLDER);
-            dir.mkdirs();
-            //File file = new File(this.getExternalFilesDir(null), this.dirName+fileName); //this function give null pointer exception so im using other one
-            File file = new File(dir, My_PICTURE_NAME);
+            File dir = new File (sdCard.getAbsolutePath() + "/" + PICTURE_FOLDER + MY_PICTURE_FOLDER);
+            File[] myPictures = dir.listFiles();
+            if(myPictures != null && myPictures.length >= 1)
+                for(File myPicture : myPictures){
+                    myPicture.delete();
+                }
             
-//        resizedBitmap.compress(CompressFormat.PNG, 100, os);
+            dir.mkdirs();
+            String myPictureFullPath = dir.getPath() + System.currentTimeMillis() + My_PICTURE_NAME;
+            //File file = new File(this.getExternalFilesDir(null), this.dirName+fileName); //this function give null pointer exception so im using other one
+            File file = new File(myPictureFullPath);
+            
             try {
                 FileOutputStream fos = new FileOutputStream(file);
                 takedPhoto.compress(Bitmap.CompressFormat.PNG, 100, fos);
@@ -89,10 +105,12 @@ public class SNetDroidActivity extends Activity {
             }
             
         }else if(requestCode == CHOOSE_PICTURE_ACTIVITY_REQUEST_CODE){
-            
+            try{
+                Bitmap chosedPhoto = (Bitmap) data.getExtras().get("data");
+            }catch (NullPointerException excp){
+                
+            }
         }
-        
-        
     }
     
     /**
