@@ -60,7 +60,7 @@ public class SNetDroidActivity extends Activity {
         myPicIv = (ImageView) findViewById(R.id.my_pic_iv);
         chosenPicIv = (ImageView) findViewById(R.id.chosen_pic_iv);
         try {
-            database = MDb.getInstance(DATABASE_NAME);
+            database = MDb.getInstance();
         } catch (DB461Exception excp) {
             excp.printStackTrace();
         }
