@@ -54,7 +54,7 @@ public class DDNSService extends RPCCallable{
      * Constructs a ddnsService object. It registers register, resolve and
      * unregister methods to rpc. 
      */
-    public DDNSService() throws Exception{
+    public DDNSService() throws Exception {
     	// Set up the method descriptor variable to refer to this->_register()
 		ddns = new RPCCallableMethod<DDNSService>(this, "_register");
 		// Register the method with the RPC service as externally invocable method "register"
