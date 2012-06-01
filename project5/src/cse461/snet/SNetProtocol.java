@@ -33,9 +33,8 @@ public class SNetProtocol {
 	    	RecordSet<PhotoRecord> photoRecords = db.PHOTOTABLE.readAll();
 			JSONArray needphotos = new JSONArray();
 			for (PhotoRecord photoRecord: photoRecords) {
-				if (photoRecord.file.equals("null")) {
+				if (photoRecord.file == null)
 					needphotos.put(photoRecord.hash);
-				}
 			}
 	    	fetchUpdatesMessage.put("needphotos", needphotos);
 		} catch (DB461Exception e) {
