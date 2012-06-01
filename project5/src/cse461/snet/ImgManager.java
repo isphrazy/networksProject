@@ -29,4 +29,6 @@ public class ImgManager {
         }
         return myPictureFullPath;
     }
+    
+    
 }
