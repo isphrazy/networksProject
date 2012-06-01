@@ -1,8 +1,12 @@
 package cse461.snet;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Properties;
 
 import cse461.snet.R;
@@ -10,9 +14,15 @@ import edu.uw.cs.cse461.sp12.OS.ContextManager;
 import edu.uw.cs.cse461.sp12.OS.IPFinder;
 import edu.uw.cs.cse461.sp12.OS.OS;
 import edu.uw.cs.cse461.sp12.util.DB461.DB461Exception;
+import edu.uw.cs.cse461.sp12.util.DB461.RecordSet;
 import edu.uw.cs.cse461.sp12.util.DB461SQLite;
+import edu.uw.cs.cse461.sp12.util.SNetDB461;
+import edu.uw.cs.cse461.sp12.util.SNetDB461.CommunityRecord;
+import edu.uw.cs.cse461.sp12.util.SNetDB461.Photo;
+import edu.uw.cs.cse461.sp12.util.SNetDB461.PhotoRecord;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
@@ -35,13 +45,15 @@ public class SNetDroidActivity extends Activity {
     private final int CHOOSE_PICTURE_ACTIVITY_REQUEST_CODE = 2;
     private final String My_PICTURE_NAME = "my_picture.png";
     private final String PICTURE_FOLDER = "snet_pics/";
-    private final String MY_PICTURE_FOLDER = "my_pics/";
     private final String DATABASE_NAME = "";
+    private final String HOST_NAME = "host.name";
+    private final int PHOTO_WIDTH = 100;
+    private final int PHOTO_HEIGHT = 200;
     
     private Properties config;
     private ImageView myPicIv;
     private ImageView chosenPicIv;
-    private DB461SQLite database;
+    private SNetDB461 db;
     
     
     
@@ -52,15 +64,34 @@ public class SNetDroidActivity extends Activity {
         setContentView(R.layout.main);
         ContextManager.setContext(getApplicationContext());
         
+        startOS();
         initVars();
+        loadPics();
     }
     
+    private void loadPics() {
+        try {
+            CommunityRecord cr = db.COMMUNITYTABLE.readOne(OS.config().getProperty(HOST_NAME));
+            if(cr.myPhotoHash != 0){
+                PhotoRecord pr = db.PHOTOTABLE.readOne(cr.myPhotoHash);
+                myPicIv.setImageBitmap(BitmapLoader.loadBitmap(pr.file.getPath(), PHOTO_WIDTH, PHOTO_HEIGHT));
+            }
+            
+            if(cr.chosenPhotoHash != 0){
+                PhotoRecord pr = db.PHOTOTABLE.readOne(cr.chosenPhotoHash);
+                chosenPicIv.setImageBitmap(BitmapLoader.loadBitmap(pr.file.getPath(), PHOTO_WIDTH, PHOTO_HEIGHT));
+            }
+        } catch (DB461Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void initVars() {
-        config = new Properties();
+        
         myPicIv = (ImageView) findViewById(R.id.my_pic_iv);
         chosenPicIv = (ImageView) findViewById(R.id.chosen_pic_iv);
         try {
-            database = MDb.getInstance();
+            db = MDb.getInstance();
         } catch (DB461Exception excp) {
             excp.printStackTrace();
         }
@@ -76,6 +107,8 @@ public class SNetDroidActivity extends Activity {
     }
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        
+        //return after taking a picture
         if(requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE){
             
             Bitmap takedPhoto = (Bitmap) data.getExtras().get("data");
@@ -83,20 +116,24 @@ public class SNetDroidActivity extends Activity {
             myPicIv.setImageBitmap(takedPhoto);
 //            String dirName = "";
             File sdCard = Environment.getExternalStorageDirectory();
-            File dir = new File (sdCard.getAbsolutePath() + "/" + PICTURE_FOLDER + MY_PICTURE_FOLDER);
+            File dir = new File (sdCard.getAbsolutePath() + "/" + PICTURE_FOLDER);
             File[] myPictures = dir.listFiles();
-            if(myPictures != null && myPictures.length >= 1)
-                for(File myPicture : myPictures){
-                    myPicture.delete();
-                }
-            
+            Log.e("onActivityResult", "list: " + Arrays.toString(myPictures));
             dir.mkdirs();
-            String myPictureFullPath = dir.getPath() + System.currentTimeMillis() + My_PICTURE_NAME;
-            //File file = new File(this.getExternalFilesDir(null), this.dirName+fileName); //this function give null pointer exception so im using other one
-            File file = new File(myPictureFullPath);
+            
             
             try {
-                FileOutputStream fos = new FileOutputStream(file);
+                MessageDigest md = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException e1) {
+                e1.printStackTrace();
+            }
+            
+            String myPictureFullPath = dir.getPath() + "/" + System.currentTimeMillis() + My_PICTURE_NAME;
+            Log.e("onActivityResult", "picturePath: " + myPictureFullPath);
+            File myPhotoFile = new File(myPictureFullPath);
+            
+            try {
+                FileOutputStream fos = new FileOutputStream(myPhotoFile);
                 takedPhoto.compress(Bitmap.CompressFormat.PNG, 100, fos);
                 fos.flush();
                 fos.close();
@@ -104,13 +141,88 @@ public class SNetDroidActivity extends Activity {
                 e.printStackTrace();
             }
             
-        }else if(requestCode == CHOOSE_PICTURE_ACTIVITY_REQUEST_CODE){
-            try{
-                Bitmap chosedPhoto = (Bitmap) data.getExtras().get("data");
-            }catch (NullPointerException excp){
+            //update the database
+            try {
                 
+                CommunityRecord mRec = db.COMMUNITYTABLE.readOne(OS.config().getProperty(HOST_NAME));
+//                Log.e("onActivityResult", "hostname: " + mRec.name);
+                int myPHash = mRec.myPhotoHash;
+                mRec.generation++;
+                PhotoRecord pr;
+                if(myPHash == 0){//first time take picture
+                    pr = db.PHOTOTABLE.createRecord();
+                }else{//already have one picture
+                    pr = db.PHOTOTABLE.readOne(myPHash);
+                    pr.file.delete();
+                }
+                Photo p = new Photo(myPhotoFile);
+                
+                mRec.myPhotoHash = p.hash();
+                File renamedP = new File(dir.getPath() + "/" + p.hash() + ".png");
+                p.file().renameTo(renamedP);
+                pr.file = renamedP;
+                pr.hash = p.hash();
+                pr.refCount = 1;
+                
+                db.COMMUNITYTABLE.write(mRec);
+                db.PHOTOTABLE.write(pr);
+                Log.e("onActivity", "my final hash: " + db.COMMUNITYTABLE.readOne(OS.config().getProperty(HOST_NAME)).myPhotoHash);
+            } catch (DB461Exception excp) {
+                excp.printStackTrace();
+            } catch (FileNotFoundException excp) {
+                excp.printStackTrace();
+            } catch (IOException excp) {
+                excp.printStackTrace();
+            } finally{
+                db.discard();
+            }
+            //return after choosing a picture
+        }else if(requestCode == CHOOSE_PICTURE_ACTIVITY_REQUEST_CODE){
+            if(resultCode == RESULT_OK){
+                try{
+                    Uri selectedImageUri = data.getData();
+                    String selectedImagePath = getPath(selectedImageUri);
+                    Log.e("onActivity", "chosed pic path: " + selectedImagePath);
+                    
+                    int photoHash = Integer.parseInt(selectedImagePath.substring(selectedImagePath.lastIndexOf('/') + 1, selectedImagePath.lastIndexOf('.')));
+                    RecordSet<PhotoRecord> photoSet = db.PHOTOTABLE.readAll();
+                    int size = photoSet.size();
+                    
+                    //check if the photo is in photo table
+                    int i;
+                    for(i = 0; i < size; i ++){
+                        if(photoSet.get(i).hash == photoHash){
+                            Log.e("onAcitivity", "find hash");
+                            break;
+                        }
+                    }
+                    
+                    if(i < size){
+                        CommunityRecord cRecord = db.COMMUNITYTABLE.readOne(OS.config().getProperty(HOST_NAME));
+                        cRecord.chosenPhotoHash = photoHash;
+                        chosenPicIv.setImageBitmap(BitmapLoader.loadBitmap(selectedImagePath, PHOTO_WIDTH, PHOTO_HEIGHT));
+                    }else{
+                        Toast.makeText(this, "You selected a photo that doesn't belong to the community", Toast.LENGTH_SHORT).show();
+                    }
+                    
+                } catch (NullPointerException excp){
+                    Log.d("onActivityResult", "no picture is choosen");
+                } catch (DB461Exception e) {
+                    e.printStackTrace();
+                } finally{
+                    db.discard();
+                }
             }
         }
+    }
+    
+    private String getPath(Uri uri) {
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor = managedQuery(uri, projection, null, null, null);
+        int column_index = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
     }
     
     /**
@@ -141,33 +253,45 @@ public class SNetDroidActivity extends Activity {
         startActivity(i);
     }
     
-    /**
+//    /**
+//     * start OS
+//     */
+//    public void onStart(){
+//        super.onStart();
+//
+//    }
+    
+    /*
      * start OS
      */
-    public void onStart(){
-        super.onStart();
+    private void startOS(){
         Toast.makeText(this, "start os", Toast.LENGTH_SHORT).show();
         String ip = getIp();
         ((TextView) findViewById(R.id.ip_tv)).setText(ip);
-        
         IPFinder.getInstance().ip = ip;
+        
+        config = new Properties();
         try {
             config.load(getAssets().open("foo.bar.config.ini"));
             OS.boot(config);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-//        OS.startServices(OS.rpcServiceClasses);
-//        OS.startServices(OS.ddnsServiceClasses);
+        OS.startServices(OS.rpcServiceClasses);
+        OS.startServices(OS.ddnsServiceClasses);
     }
     
     
-    /**
-     * shut the OS down
-     */
-    public void onStop(){
-        super.onStop();
+//    /**
+//     * shut the OS down
+//     */
+//    public void onStop(){
+//        super.onStop();
+//        Toast.makeText(this, "shut os down", Toast.LENGTH_SHORT).show();
+//        OS.shutdown();
+//    }
+    
+    public void onDestroy(){
         Toast.makeText(this, "shut os down", Toast.LENGTH_SHORT).show();
         OS.shutdown();
     }
