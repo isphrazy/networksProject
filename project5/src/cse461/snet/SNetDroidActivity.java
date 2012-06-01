@@ -66,7 +66,7 @@ public class SNetDroidActivity extends Activity {
         
         startOS();
         initVars();
-        loadPics();
+        
     }
     
     private void loadPics() {
@@ -95,6 +95,7 @@ public class SNetDroidActivity extends Activity {
         } catch (DB461Exception excp) {
             excp.printStackTrace();
         }
+        loadPics();
     }
 
     /**
@@ -200,6 +201,7 @@ public class SNetDroidActivity extends Activity {
                     if(i < size){
                         CommunityRecord cRecord = db.COMMUNITYTABLE.readOne(OS.config().getProperty(HOST_NAME));
                         cRecord.chosenPhotoHash = photoHash;
+                        cRecord.generation++;
                         chosenPicIv.setImageBitmap(BitmapLoader.loadBitmap(selectedImagePath, PHOTO_WIDTH, PHOTO_HEIGHT));
                     }else{
                         Toast.makeText(this, "You selected a photo that doesn't belong to the community", Toast.LENGTH_SHORT).show();
@@ -279,6 +281,7 @@ public class SNetDroidActivity extends Activity {
         }
         OS.startServices(OS.rpcServiceClasses);
         OS.startServices(OS.ddnsServiceClasses);
+//        OS.startServices(OS.snetServiceClasses);
     }
     
     

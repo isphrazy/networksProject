@@ -2,6 +2,8 @@ package edu.uw.cs.cse461.sp12.OS;
 
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import cse461.snet.MDb;
 
 import edu.uw.cs.cse461.sp12.OS.RPCCallable.RPCCallableMethod;
@@ -40,10 +42,12 @@ public class SnetService extends RPCCallable {
 	}
 	
 	public JSONObject _fetchUpdates(JSONObject args) {
-		return null;
+	    Log.e("_fetchUpdates", args.toString());
+		return null; 
 	}
 	
 	public JSONObject _fetchPhoto(JSONObject args) {
+	    Log.e("_fetchPhoto", args.toString());
 		return null;
 	}
 }
