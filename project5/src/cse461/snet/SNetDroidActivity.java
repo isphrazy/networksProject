@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -12,6 +14,7 @@ import edu.uw.cs.cse461.sp12.OS.ContextManager;
 import edu.uw.cs.cse461.sp12.OS.IPFinder;
 import edu.uw.cs.cse461.sp12.OS.OS;
 import edu.uw.cs.cse461.sp12.util.DB461.DB461Exception;
+import edu.uw.cs.cse461.sp12.util.DB461.RecordSet;
 import edu.uw.cs.cse461.sp12.util.DB461SQLite;
 import edu.uw.cs.cse461.sp12.util.SNetDB461;
 import edu.uw.cs.cse461.sp12.util.SNetDB461.CommunityRecord;
@@ -42,8 +45,10 @@ public class SNetDroidActivity extends Activity {
     private final int CHOOSE_PICTURE_ACTIVITY_REQUEST_CODE = 2;
     private final String My_PICTURE_NAME = "my_picture.png";
     private final String PICTURE_FOLDER = "snet_pics/";
-//    private final String MY_PICTURE_FOLDER = "my_pics/";
     private final String DATABASE_NAME = "";
+    private final String HOST_NAME = "host.name";
+    private final int PHOTO_WIDTH = 100;
+    private final int PHOTO_HEIGHT = 200;
     
     private Properties config;
     private ImageView myPicIv;
@@ -61,8 +66,26 @@ public class SNetDroidActivity extends Activity {
         
         startOS();
         initVars();
+        loadPics();
     }
     
+    private void loadPics() {
+        try {
+            CommunityRecord cr = db.COMMUNITYTABLE.readOne(OS.config().getProperty(HOST_NAME));
+            if(cr.myPhotoHash != 0){
+                PhotoRecord pr = db.PHOTOTABLE.readOne(cr.myPhotoHash);
+                myPicIv.setImageBitmap(BitmapLoader.loadBitmap(pr.file.getPath(), PHOTO_WIDTH, PHOTO_HEIGHT));
+            }
+            
+            if(cr.chosenPhotoHash != 0){
+                PhotoRecord pr = db.PHOTOTABLE.readOne(cr.chosenPhotoHash);
+                chosenPicIv.setImageBitmap(BitmapLoader.loadBitmap(pr.file.getPath(), PHOTO_WIDTH, PHOTO_HEIGHT));
+            }
+        } catch (DB461Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void initVars() {
         
         myPicIv = (ImageView) findViewById(R.id.my_pic_iv);
@@ -98,6 +121,13 @@ public class SNetDroidActivity extends Activity {
             Log.e("onActivityResult", "list: " + Arrays.toString(myPictures));
             dir.mkdirs();
             
+            
+            try {
+                MessageDigest md = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException e1) {
+                e1.printStackTrace();
+            }
+            
             String myPictureFullPath = dir.getPath() + "/" + System.currentTimeMillis() + My_PICTURE_NAME;
             Log.e("onActivityResult", "picturePath: " + myPictureFullPath);
             File myPhotoFile = new File(myPictureFullPath);
@@ -114,10 +144,10 @@ public class SNetDroidActivity extends Activity {
             //update the database
             try {
                 
-                CommunityRecord cRec = db.COMMUNITYTABLE.readOne(OS.config().getProperty("host.name"));
-                Log.e("onActivityResult", "hostname: " + cRec.name);
-                int myPHash = cRec.myPhotoHash;
-                cRec.generation++;
+                CommunityRecord mRec = db.COMMUNITYTABLE.readOne(OS.config().getProperty(HOST_NAME));
+//                Log.e("onActivityResult", "hostname: " + mRec.name);
+                int myPHash = mRec.myPhotoHash;
+                mRec.generation++;
                 PhotoRecord pr;
                 if(myPHash == 0){//first time take picture
                     pr = db.PHOTOTABLE.createRecord();
@@ -126,42 +156,73 @@ public class SNetDroidActivity extends Activity {
                     pr.file.delete();
                 }
                 Photo p = new Photo(myPhotoFile);
-                cRec.myPhotoHash = p.hash();
-                pr.file = p.file();
-                pr.hash = p.hash();
-                pr.refCount = 0;
                 
-                db.COMMUNITYTABLE.write(cRec);
+                mRec.myPhotoHash = p.hash();
+                File renamedP = new File(dir.getPath() + "/" + p.hash() + ".png");
+                p.file().renameTo(renamedP);
+                pr.file = renamedP;
+                pr.hash = p.hash();
+                pr.refCount = 1;
+                
+                db.COMMUNITYTABLE.write(mRec);
                 db.PHOTOTABLE.write(pr);
+                Log.e("onActivity", "my final hash: " + db.COMMUNITYTABLE.readOne(OS.config().getProperty(HOST_NAME)).myPhotoHash);
             } catch (DB461Exception excp) {
                 excp.printStackTrace();
             } catch (FileNotFoundException excp) {
                 excp.printStackTrace();
             } catch (IOException excp) {
                 excp.printStackTrace();
+            } finally{
+                db.discard();
             }
             //return after choosing a picture
         }else if(requestCode == CHOOSE_PICTURE_ACTIVITY_REQUEST_CODE){
-//            if(requestCode == RESULT_OK){
-            try{
-                Uri selectedImg = data.getData();
-                String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                
-                Cursor cursor = getContentResolver().query(selectedImg, filePathColumn, null, null, null);
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                String filePath = cursor.getString(columnIndex);
-                
-//                    Bitmap chosedPhoto = (Bitmap) data.getExtras().get("data");
-                CommunityRecord cRec = db.COMMUNITYTABLE.readOne(OS.config().getProperty("host.name"));
-                
-            }catch (NullPointerException excp){
-                Log.d("onActivityResult", "no picture is choosen");
-            }catch (DB461Exception excp) {
-                excp.printStackTrace();
+            if(resultCode == RESULT_OK){
+                try{
+                    Uri selectedImageUri = data.getData();
+                    String selectedImagePath = getPath(selectedImageUri);
+                    Log.e("onActivity", "chosed pic path: " + selectedImagePath);
+                    
+                    int photoHash = Integer.parseInt(selectedImagePath.substring(selectedImagePath.lastIndexOf('/') + 1, selectedImagePath.lastIndexOf('.')));
+                    RecordSet<PhotoRecord> photoSet = db.PHOTOTABLE.readAll();
+                    int size = photoSet.size();
+                    
+                    //check if the photo is in photo table
+                    int i;
+                    for(i = 0; i < size; i ++){
+                        if(photoSet.get(i).hash == photoHash){
+                            Log.e("onAcitivity", "find hash");
+                            break;
+                        }
+                    }
+                    
+                    if(i < size){
+                        CommunityRecord cRecord = db.COMMUNITYTABLE.readOne(OS.config().getProperty(HOST_NAME));
+                        cRecord.chosenPhotoHash = photoHash;
+                        chosenPicIv.setImageBitmap(BitmapLoader.loadBitmap(selectedImagePath, PHOTO_WIDTH, PHOTO_HEIGHT));
+                    }else{
+                        Toast.makeText(this, "You selected a photo that doesn't belong to the community", Toast.LENGTH_SHORT).show();
+                    }
+                    
+                } catch (NullPointerException excp){
+                    Log.d("onActivityResult", "no picture is choosen");
+                } catch (DB461Exception e) {
+                    e.printStackTrace();
+                } finally{
+                    db.discard();
+                }
             }
-//            }
         }
-        
+    }
+    
+    private String getPath(Uri uri) {
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor = managedQuery(uri, projection, null, null, null);
+        int column_index = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
     }
     
     /**
