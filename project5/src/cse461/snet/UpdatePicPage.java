@@ -54,10 +54,7 @@ public class UpdatePicPage extends Activity {
     		db = MDb.getInstance();
     	} catch (DB461Exception e) {
     		System.out.println("error occurred while initializing the database");
-		} finally {
-    		if (db != null)
-    			db.discard();
-    	}
+		} 
     	
         spinner = (Spinner) findViewById(R.id.spinner);
         try {
@@ -70,6 +67,7 @@ public class UpdatePicPage extends Activity {
 			System.out.println("An error occurred while putting names into the spinner");
 		}
         
+        spinner.setAdapter(adapter);
         snet = new SNetProtocol(db);
         resolver = ((DDNSResolverService)OS.getService("ddnsresolver"));
     }
@@ -144,8 +142,14 @@ public class UpdatePicPage extends Activity {
 	        RPCCallerSocket callerSocket = new RPCCallerSocket(record.getIp(), record.getIp(), "" + record.getPort());
 	        JSONObject fetchUpdate = snet.fetchUpdates();
 	        JSONObject response = callerSocket.invoke("snet", "fetchUpdates", fetchUpdate);
+	        Log.e("contact", "response: " + response);
 	        
 	        fetchUpdates(response);
+	        Log.e("contact", "community db: " + db.COMMUNITYTABLE);
+	        adapter.clear();
+	        for (CommunityRecord communityRecord: db.COMMUNITYTABLE.readAll()) {
+	            adapter.add(communityRecord.name);
+	        }
 	        
 	        fetchPhotos(response, callerSocket);
 	        
@@ -218,7 +222,7 @@ public class UpdatePicPage extends Activity {
         		if (receivedCommunityRecord.getInt("generation") >= communityRecord.generation) {
         			communityRecord.generation = receivedCommunityRecord.getInt("generation");
         			communityRecord.chosenPhotoHash = receivedCommunityRecord.getInt("chosenphotohash");
-        			communityRecord.myPhotoHash = receivedCommunityRecord.getInt("myPhotoHash");
+        			communityRecord.myPhotoHash = receivedCommunityRecord.getInt("myphotohash");
         			db.COMMUNITYTABLE.write(communityRecord);
         		}
         	}
@@ -236,7 +240,7 @@ public class UpdatePicPage extends Activity {
 	        		JSONObject photoRequest = snet.fetchPhotos(photo);
 	        		JSONObject photoResponse = callerSocket.invoke("snet", "fetchPhoto", photoRequest);
 	        		if (isValidPhotoResponse(photo, photoResponse)) {
-	        			String photoPath = dir + "/" + Integer.toString(photo) +".jpg";
+	        			String photoPath = dir.getPath() + "/" + Integer.toString(photo) +".jpg";
 	        			Base64.decodeToFile(photoResponse.getString("photodata"), photoPath);
         				File photoFile = new File(photoPath);
 	        			if (photoRecord == null) {

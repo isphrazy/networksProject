@@ -22,7 +22,7 @@ public class MDb {
         if(instance == null){
             instance = new SNetDB461();
             String hostName = OS.config().getProperty("host.name");
-            instance.registerMember("cse461.");
+            instance.registerMember(".");
             instance.registerMember(hostName);
             
         }

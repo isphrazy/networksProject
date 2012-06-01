@@ -28,7 +28,7 @@ public class SNetProtocol {
 	    		value.put("chosenphotohash", record.chosenPhotoHash);
 	    		communityUpdates.put(record.name, value);
 	    	}
-	    	fetchUpdatesMessage.put("communityupdates", communityUpdates);
+	    	fetchUpdatesMessage.put("community", communityUpdates);
 	    	
 	    	RecordSet<PhotoRecord> photoRecords = db.PHOTOTABLE.readAll();
 			JSONArray needphotos = new JSONArray();
