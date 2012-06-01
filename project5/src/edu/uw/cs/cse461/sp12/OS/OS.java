@@ -39,6 +39,10 @@ public class OS {
 														"edu.uw.cs.cse461.sp12.OS.DDNSService",
 //	                                                    "edu.uw.cs.cse461.sp12.OS.HTTPDService"
 			  									      };
+	
+	public static final String[] snetServiceClasses = { 
+														"edu.uw.cs.cse461.sp12.OS.SnetService",
+	      											  };
 	//---------------------------------------------------------------------------------------------------
 
 	// used to keep track of started services.  The String key is the name returned by the
@@ -201,6 +205,7 @@ public class OS {
 			OS.startServices(rpcServiceClasses);
 			// not used until Project 4
 			OS.startServices(ddnsServiceClasses);
+			OS.startServices(snetServiceClasses);
 
 		} catch (Exception e) {
 			Log.e(TAG, "Caught exception: " + e.getMessage());
