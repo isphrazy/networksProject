@@ -174,9 +174,7 @@ public class SNetDroidActivity extends Activity {
                 excp.printStackTrace();
             } catch (IOException excp) {
                 excp.printStackTrace();
-            } finally{
-                db.discard();
-            }
+            } 
             //return after choosing a picture
         }else if(requestCode == CHOOSE_PICTURE_ACTIVITY_REQUEST_CODE){
             if(resultCode == RESULT_OK){
@@ -202,6 +200,7 @@ public class SNetDroidActivity extends Activity {
                         CommunityRecord cRecord = db.COMMUNITYTABLE.readOne(OS.config().getProperty(HOST_NAME));
                         cRecord.chosenPhotoHash = photoHash;
                         cRecord.generation++;
+                        db.COMMUNITYTABLE.write(cRecord);
                         chosenPicIv.setImageBitmap(BitmapLoader.loadBitmap(selectedImagePath, PHOTO_WIDTH, PHOTO_HEIGHT));
                     }else{
                         Toast.makeText(this, "You selected a photo that doesn't belong to the community", Toast.LENGTH_SHORT).show();
@@ -211,8 +210,6 @@ public class SNetDroidActivity extends Activity {
                     Log.d("onActivityResult", "no picture is choosen");
                 } catch (DB461Exception e) {
                     e.printStackTrace();
-                } finally{
-                    db.discard();
                 }
             }
         }
@@ -297,6 +294,7 @@ public class SNetDroidActivity extends Activity {
     public void onDestroy(){
         Toast.makeText(this, "shut os down", Toast.LENGTH_SHORT).show();
         OS.shutdown();
+        db.discard();
     }
     
     
