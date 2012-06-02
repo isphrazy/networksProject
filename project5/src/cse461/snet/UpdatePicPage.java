@@ -74,6 +74,7 @@ public class UpdatePicPage extends Activity {
 
 
     public void beFriend(View view){
+        Log.e("beFriend", "in");
         String friend = spinner.getSelectedItem().toString();
         try {
 			CommunityRecord record = db.COMMUNITYTABLE.readOne(friend);
@@ -131,7 +132,6 @@ public class UpdatePicPage extends Activity {
 				db.PHOTOTABLE.delete(record.chosenPhotoHash);
 			
         } catch (DB461Exception e) {
-//			e.printStackTrace();
 		}
     }
     
