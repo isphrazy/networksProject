@@ -153,7 +153,8 @@ public class SNetDroidActivity extends Activity {
                     pr = db.PHOTOTABLE.createRecord();
                 }else{//already have one picture
                     pr = db.PHOTOTABLE.readOne(myPHash);
-                    pr.file.delete();
+                    if(pr == null)
+                        pr = db.PHOTOTABLE.createRecord();
                 }
                 Photo p = new Photo(myPhotoFile);
                 
@@ -282,7 +283,7 @@ public class SNetDroidActivity extends Activity {
         }
         OS.startServices(OS.rpcServiceClasses);
         OS.startServices(OS.ddnsServiceClasses);
-//        OS.startServices(OS.snetServiceClasses);
+        OS.startServices(OS.snetServiceClasses);
     }
     
     

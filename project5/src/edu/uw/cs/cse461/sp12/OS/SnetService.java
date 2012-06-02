@@ -25,7 +25,7 @@ public class SnetService extends RPCCallable {
 	
 	@Override
     public String servicename() {
-        return "ddns";
+        return "snet";
     }
 
 	@Override
@@ -83,13 +83,13 @@ public class SnetService extends RPCCallable {
 	        	
 	        	msg.put("communityupdates", memberField);
 	        	
-	        	JSONArray needPhotos = community.getJSONArray("needphotos");
+	        	JSONArray needPhotos = args.getJSONArray("needphotos");
 	        	JSONArray photoUpdates = new JSONArray();
 	        	
-	        	RecordSet<PhotoRecord> photoRecords = db.PHOTOTABLE.readAll();
 	        	for (int i = 0; i < needPhotos.length(); i++) {
 	        		int photoName = needPhotos.getInt(i);
-	        		if (photoRecords.contains(photoName))
+	        		PhotoRecord photoRecord = db.PHOTOTABLE.readOne(photoName);
+	        		if (photoRecord != null)
 	        			photoUpdates.put(photoName);
 	        	}
 	        	
@@ -99,15 +99,16 @@ public class SnetService extends RPCCallable {
     			throw new IllegalArgumentException("fetchUpdate message does not follow the SNet protocol");
 		    }
 	    } catch (JSONException e)  {
-		    Log.e("_fetchUpdates", e.getMessage());
+		    Log.e("_fetchUpdates", "JSONException: " + e.getMessage());
 			throw new IllegalArgumentException("Sorry, an error has occurred at my part.");
 	    } catch (DB461Exception e) {
-		    Log.e("_fetchUpdates", e.getMessage());
+		    Log.e("_fetchUpdates", "DB461Exception: " + e.getMessage());
 			throw new IllegalArgumentException("Sorry, an error has occurred at my part.");
 	    } catch (Exception e) {
-		    Log.e("_fetchUpdates", e.getMessage());
+		    Log.e("_fetchUpdates", "Exception: " + e.getMessage());
 			throw new IllegalArgumentException("Sorry, an error has occurred at my part.");
 		}
+	    Log.e("_fetchUpdates", "msg: " + msg);
     	return msg;
 	}
 	
@@ -125,6 +126,8 @@ public class SnetService extends RPCCallable {
         			throw new IllegalArgumentException("Sorry, I do not have the photo you requested");
 				
 				String encodedData = Base64.encodeFromFile(photoHash.file.getAbsolutePath());
+		        Log.e("_fetchPhoto", photoHash.file.getAbsolutePath());
+
 				msg.put("photohash", photoHash.hash);
 				msg.put("photodata", encodedData);
 			} else {

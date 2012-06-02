@@ -6,6 +6,8 @@ import java.net.Socket;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import edu.uw.cs.cse461.sp12.util.TCPMessageHandler;
 
 /**
@@ -87,7 +89,8 @@ public class RPCCallerSocket extends Socket {
 			e.printStackTrace();
 		} catch (IOException e) {
 			try {
-				return new JSONObject().put("msg", "An error has occurd.");
+	             Log.e("RPCCallerSocket.invoke", "ioexception: e.message: " + e.getMessage());
+				return new JSONObject().put("msg", "An error has occurred.");
 			} catch (JSONException e1) {}
 		} catch (IllegalArgumentException e) {
 			try {
@@ -102,6 +105,7 @@ public class RPCCallerSocket extends Socket {
 			msgId++;
 			tcpHandler.sendMessage(outputStream);
 			respond = tcpHandler.readMessageAsString();
+			Log.e("RPCCallerSocket.invoke", "respond: " + respond);
 			if (!checkResponse(respond, "invoke"))
 				throw new IllegalArgumentException();
 			if (checkStatus(respond, "ERROR")) {
@@ -111,7 +115,8 @@ public class RPCCallerSocket extends Socket {
 			return new JSONObject(respond).getJSONObject("value");
 		} catch (IOException e) {
 			try {
-				return new JSONObject().put("msg", "An error has occurd");
+			    Log.e("RPCCallerSocket.invoke", "ioexception: e.message: " + e.getMessage());
+				return new JSONObject().put("msg", "An error has occurd.");
 			} catch (JSONException e1) {}		
 		} catch (JSONException e) {
 			e.printStackTrace();

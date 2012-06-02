@@ -73,25 +73,7 @@ public class UpdatePicPage extends Activity {
         Log.e("beFriend", "in");
         String friend = spinner.getSelectedItem().toString();
         try {
-			CommunityRecord record = db.COMMUNITYTABLE.readOne(friend);
-			if (record.isFriend == false) {
-				record.isFriend = true;
-				db.COMMUNITYTABLE.write(record);
-				if (db.PHOTOTABLE.readOne(record.myPhotoHash) == null) {
-					PhotoRecord myPhoto = db.PHOTOTABLE.createRecord();
-					myPhoto.file = null;
-					myPhoto.hash = record.myPhotoHash;
-					myPhoto.refCount = 1;
-					db.PHOTOTABLE.write(myPhoto);
-				}
-				if (db.PHOTOTABLE.readOne(record.chosenPhotoHash) == null) {
-					PhotoRecord chosenPhoto = db.PHOTOTABLE.createRecord();
-					chosenPhoto.file = null;
-					chosenPhoto.hash = record.chosenPhotoHash;
-					chosenPhoto.refCount = 1;
-					db.PHOTOTABLE.write(chosenPhoto);
-				}
-			}
+			
 			DDNSRRecord ddnsRecord = resolver.resolve(friend);
 			RPCCallerSocket callerSocket = new RPCCallerSocket(ddnsRecord.getIp(), ddnsRecord.getIp(), "" + ddnsRecord.getPort());
 	        JSONObject fetchUpdate = snet.fetchUpdates();
@@ -99,7 +81,27 @@ public class UpdatePicPage extends Activity {
 	        
 	        fetchUpdates(response);
 	        
-	        fetchPhotos(response, callerSocket);
+	        CommunityRecord record = db.COMMUNITYTABLE.readOne(friend);
+            if (record.isFriend == false) {
+                record.isFriend = true;
+                db.COMMUNITYTABLE.write(record);
+                if (db.PHOTOTABLE.readOne(record.myPhotoHash) == null) {
+                    PhotoRecord myPhoto = db.PHOTOTABLE.createRecord();
+                    myPhoto.file = null;
+                    myPhoto.hash = record.myPhotoHash;
+                    myPhoto.refCount = 1;
+                    db.PHOTOTABLE.write(myPhoto);
+                }
+                if (db.PHOTOTABLE.readOne(record.chosenPhotoHash) == null) {
+                    PhotoRecord chosenPhoto = db.PHOTOTABLE.createRecord();
+                    chosenPhoto.file = null;
+                    chosenPhoto.hash = record.chosenPhotoHash;
+                    chosenPhoto.refCount = 1;
+                    db.PHOTOTABLE.write(chosenPhoto);
+                }
+            }
+            
+	        fetchPhotos(response, friend);
 	        
 		} catch (DDNSNoAddressException e) {
 	        Toast.makeText(this, friend + " is currently offline", Toast.LENGTH_SHORT).show();
@@ -143,6 +145,10 @@ public class UpdatePicPage extends Activity {
 		}
     }
     
+//    private class AdapterComparater extends Comparater<>{
+//        
+//    }
+    
     public void contact(View view){
         String contact = spinner.getSelectedItem().toString();
         try {
@@ -159,8 +165,8 @@ public class UpdatePicPage extends Activity {
 	        for (CommunityRecord communityRecord: db.COMMUNITYTABLE.readAll()) {
 	            adapter.add(communityRecord.name);
 	        }
-	        
-	        fetchPhotos(response, callerSocket);
+//	        adapter.sort(comparator);
+	        fetchPhotos(response, contact);
 	        
 		} catch (DDNSNoAddressException e) {
 	        Toast.makeText(this, contact + " is currently offline", Toast.LENGTH_SHORT).show();
@@ -195,7 +201,8 @@ public class UpdatePicPage extends Activity {
     }
     
     private void fetchUpdates(JSONObject response) throws JSONException, DB461Exception, IllegalArgumentException {
-    	if (snet.isValidCommunityProtocol(response, "communityupdates", "photoupdates")) {
+    	Log.e("fetch updates", "response: " + response);
+        if (snet.isValidCommunityProtocol(response, "communityupdates", "photoupdates")) {
         	JSONObject communityupdates = response.getJSONObject("communityupdates");
 			Iterator<String> it = communityupdates.keys();
         	while (it.hasNext()) {
@@ -224,19 +231,31 @@ public class UpdatePicPage extends Activity {
         }
     }
     
-    private void fetchPhotos(JSONObject response, RPCCallerSocket callerSocket) 
-    		throws IOException, JSONException, DB461Exception, IllegalArgumentException {
+    private void fetchPhotos(JSONObject response, String contact) 
+    		throws IOException, JSONException, DB461Exception, IllegalArgumentException, DDNSNoAddressException, DDNSNoSuchNameException {
         if (snet.isValidPhotoProtocol(response, "photoupdates")) {
 	        JSONArray array = response.getJSONArray("photoupdates");
 	        for (int i = 0; i < array.length(); i++) {
 	        	int photo = array.getInt(i);
+	        	if (photo == 0) continue;
 	        	PhotoRecord photoRecord = db.PHOTOTABLE.readOne(photo);
 	        	if (photoRecord == null || photoRecord.file == null) {
+	        	    DDNSRRecord record;
+                    try {
+                        record = resolver.resolve(contact);
+                    } catch (DDNSNoAddressException e) {
+                        throw e;
+                    } catch (DDNSNoSuchNameException e) {
+                        throw e;
+                    }
+	                RPCCallerSocket callerSocket = new RPCCallerSocket(record.getIp(), record.getIp(), "" + record.getPort());
+	                
 	        		JSONObject photoRequest = snet.fetchPhotos(photo);
 	        		JSONObject photoResponse = callerSocket.invoke("snet", "fetchPhoto", photoRequest);
-	        		
+	        		Log.e("fetchPhotos", "photoResponse: " + photoResponse.toString());
 	        		if (snet.isValidPhotoResponse(photo, photoResponse)) {
-	        			String photoPath = snet.dir.getPath() + "/" + Integer.toString(photo) +".jpg";
+	        			String photoPath = snet.dir.getAbsolutePath() + "/" + Integer.toString(photo) +".jpg";
+	        			
 	        			Base64.decodeToFile(photoResponse.getString("photodata"), photoPath);
 	        			
         				File photoFile = new File(photoPath);
