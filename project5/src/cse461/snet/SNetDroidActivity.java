@@ -45,7 +45,6 @@ public class SNetDroidActivity extends Activity {
     private final int CHOOSE_PICTURE_ACTIVITY_REQUEST_CODE = 2;
     private final String My_PICTURE_NAME = "my_picture.png";
     private final String PICTURE_FOLDER = "snet_pics/";
-    private final String DATABASE_NAME = "";
     private final String HOST_NAME = "host.name";
     private final int PHOTO_WIDTH = 100;
     private final int PHOTO_HEIGHT = 200;
@@ -110,7 +109,7 @@ public class SNetDroidActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         
         //return after taking a picture
-        if(requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE){
+        if(requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK){
             
             Bitmap takedPhoto = (Bitmap) data.getExtras().get("data");
             
@@ -207,9 +206,12 @@ public class SNetDroidActivity extends Activity {
                     }
                     
                 } catch (NullPointerException excp){
+                    Toast.makeText(this, "no picture is chosen", Toast.LENGTH_SHORT).show();
                     Log.d("onActivityResult", "no picture is choosen");
                 } catch (DB461Exception e) {
                     e.printStackTrace();
+                } catch (NumberFormatException excp){
+                    Toast.makeText(this, "Please select a photo from community", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -221,7 +223,9 @@ public class SNetDroidActivity extends Activity {
         int column_index = cursor
                 .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
-        return cursor.getString(column_index);
+        String result = cursor.getString(column_index);
+        cursor.close();
+        return result;
     }
     
     /**
@@ -292,6 +296,7 @@ public class SNetDroidActivity extends Activity {
 //    }
     
     public void onDestroy(){
+        super.onDestroy();
         Toast.makeText(this, "shut os down", Toast.LENGTH_SHORT).show();
         OS.shutdown();
         db.discard();
