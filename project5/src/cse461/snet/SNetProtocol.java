@@ -1,14 +1,23 @@
 package cse461.snet;
 
+import java.io.File;
 import org.json.*;
+
+import android.os.Environment;
 
 import edu.uw.cs.cse461.sp12.util.DB461.RecordSet;
 import edu.uw.cs.cse461.sp12.util.*;
 import edu.uw.cs.cse461.sp12.util.DB461.DB461Exception;
 import edu.uw.cs.cse461.sp12.util.SNetDB461.CommunityRecord;
 import edu.uw.cs.cse461.sp12.util.SNetDB461.PhotoRecord;
+import android.widget.Toast;
+
 
 public class SNetProtocol {
+	
+	public static final String PICTURE_FOLDER = "snet_pics/";
+	public static final File sdCard = Environment.getExternalStorageDirectory();
+    public static final File dir = new File (sdCard.getAbsolutePath() + "/" + PICTURE_FOLDER);
 	
 	private SNetDB461 db;
 	    
@@ -16,7 +25,7 @@ public class SNetProtocol {
     	this.db = db;
     }
     
-    public JSONObject fetchUpdates() {
+    public JSONObject fetchUpdates() throws DB461Exception, JSONException {
     	JSONObject fetchUpdatesMessage = new JSONObject();
     	try {
 			RecordSet<CommunityRecord> records = db.COMMUNITYTABLE.readAll();
@@ -38,22 +47,19 @@ public class SNetProtocol {
 			}
 	    	fetchUpdatesMessage.put("needphotos", needphotos);
 		} catch (DB461Exception e) {
-			System.out.println("An error occurred when creating a fetchUpdate message");
-//			e.printStackTrace();
+			throw new DB461Exception("An error occurred when creating a fetchUpdate message");
 		} catch (JSONException e) {
-			System.out.println("An error occurred when creating a JSONObject for fetchUpdate");
-//			e.printStackTrace();
+			throw new JSONException("An error occurred when creating a JSONObject for fetchUpdate");
 		}
     	return fetchUpdatesMessage;
     }
     
-    public JSONObject fetchPhotos(int photohash) {
+    public JSONObject fetchPhotos(int photohash) throws JSONException {
     	JSONObject fetchPhotosMessage = new JSONObject();
     	try {
 			fetchPhotosMessage.put("photohash", photohash);
 		} catch (JSONException e) {
-			System.out.println("An error occurred when creating a JSONObject for fetchPhotos");
-//			e.printStackTrace();
+			throw new JSONException("An error occurred when creating a JSONObject for fetchPhoto");
 		}
     	return fetchPhotosMessage;
     }
@@ -75,7 +81,6 @@ public class SNetProtocol {
 			return response.has("photohash") && response.has("photodata") && response.getInt("photohash") == hash;
 		} catch (JSONException e) {
 			return false;
-//			e.printStackTrace();
 		}
     }
 }

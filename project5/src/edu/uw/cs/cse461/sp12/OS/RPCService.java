@@ -223,7 +223,7 @@ public class RPCService extends RPCCallable {
 							String errorResponse = createJsonMessage(
 									msgId, type, "Incompatible protocol"); 
 							tcpHandler.sendMessage(errorResponse);
-							throw new IllegalArgumentException();
+							throw new Exception();
 						}
 						
 						// check if we can allow any more connections
@@ -231,7 +231,7 @@ public class RPCService extends RPCCallable {
 							String errorResponse = createJsonMessage(
 									request.getInt("id"), type, "Max connections exceeded");
 							tcpHandler.sendMessage(errorResponse);
-							throw new IllegalArgumentException();
+							throw new Exception();
 						} else {
 							String okReponse = createJsonMessage(
 									request.getInt("id"), type, "");
@@ -245,7 +245,7 @@ public class RPCService extends RPCCallable {
 							String errorResponse = createJsonMessage(
 									msgId, status, "Incompatible protocol"); 
 							tcpHandler.sendMessage(errorResponse);
-							throw new IllegalArgumentException();
+							throw new Exception();
 						}
 						
  						int id = request.getInt("id");
@@ -260,16 +260,23 @@ public class RPCService extends RPCCallable {
 								String errorResponse = createErrorResponseJSONMessage(
 										"No such service, connection is terminated", id, request);
 								tcpHandler.sendMessage(errorResponse);
-								throw new IllegalArgumentException();
+								throw new Exception();
 							}
 							if (!services.get(app).containsKey(method)) {
 								String errorResponse = createErrorResponseJSONMessage(
 										"The service has no such method, connection is terminated", id, request);
 								tcpHandler.sendMessage(errorResponse);
-								throw new IllegalArgumentException();
+								throw new Exception();
 							}
 							RPCCallableMethod serviceMethod = services.get(app).get(method);
-							JSONObject returnedValue = serviceMethod.handleCall(args);
+							JSONObject returnedValue = new JSONObject();
+							try {
+								returnedValue = serviceMethod.handleCall(args);
+							} catch (IllegalArgumentException e) { 
+								String errorResponse = createErrorResponseJSONMessage(e.getMessage(), id, request);
+								tcpHandler.sendMessage(errorResponse);
+								throw new Exception();
+							}
 							String response = createResponseJSONMessage(id,returnedValue);
 							tcpHandler.sendMessage(response);
 							this.close();

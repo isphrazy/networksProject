@@ -42,21 +42,18 @@ public class SnetService extends RPCCallable {
 		try {
     		db = MDb.getInstance();
     	} catch (DB461Exception e) {
-    		System.out.println("error occurred while initializing the database");
-		} finally {
-    		if (db != null)
-    			db.discard();
-    	}
+    	    Log.e("_fetchUpdates", "error occurred while initializing the database");
+		}
+		
 		snet = new SNetProtocol(db);
 	}
-	
-	//TODO throw exception for error cases
-	
-	public JSONObject _fetchUpdates(JSONObject args) {
+		
+	public JSONObject _fetchUpdates(JSONObject args) throws IllegalArgumentException {
 	    Log.e("_fetchUpdates", args.toString());
+	    
+    	JSONObject msg = new JSONObject();
 	    try {
 		    if (snet.isValidCommunityProtocol(args, "community", "needphotos")) {
-		    	JSONObject msg = new JSONObject();
 		    	JSONObject community = args.getJSONObject("community");
 		    	JSONObject memberField = new JSONObject();
 		    	
@@ -65,9 +62,8 @@ public class SnetService extends RPCCallable {
 	        		String name = it.next().toString();
 	        		JSONObject member = community.getJSONObject(name);
 	        		
-	        		//TODO
 	        		if (!snet.isValidMemberField(member)) {
-	        			break;
+	        			throw new IllegalArgumentException("memberField in the args does not follow the SNet protocol");
 	        		}
 	        		
 	        		CommunityRecord cRecord = db.COMMUNITYTABLE.readOne(name);
@@ -78,7 +74,10 @@ public class SnetService extends RPCCallable {
 	        			newerMember.put("chosenphotohash", cRecord.chosenPhotoHash);
 	        			memberField.put(name, newerMember);
 	        		} else if (cRecord.generation < member.getInt("generation")) {
-	        			//TODO update ref count as well
+	        			cRecord.generation = member.getInt("generation");
+	        			cRecord.myPhotoHash = member.getInt("myphotohash");
+	        			cRecord.chosenPhotoHash = member.getInt("chosenphotohash");
+	        			db.COMMUNITYTABLE.write(cRecord);
 	        		}
 	        	}
 	        	
@@ -96,39 +95,51 @@ public class SnetService extends RPCCallable {
 	        	
 	        	msg.put("photoupdates", photoUpdates);
 	        	
-	        	return msg;
+		    } else {
+    			throw new IllegalArgumentException("fetchUpdate message does not follow the SNet protocol");
 		    }
 	    } catch (JSONException e)  {
-	    	
+		    Log.e("_fetchUpdates", e.getMessage());
+			throw new IllegalArgumentException("Sorry, an error has occurred at my part.");
 	    } catch (DB461Exception e) {
-//			e.printStackTrace();
+		    Log.e("_fetchUpdates", e.getMessage());
+			throw new IllegalArgumentException("Sorry, an error has occurred at my part.");
+	    } catch (Exception e) {
+		    Log.e("_fetchUpdates", e.getMessage());
+			throw new IllegalArgumentException("Sorry, an error has occurred at my part.");
 		}
-		return null; 
+    	return msg;
 	}
 	
-	public JSONObject _fetchPhoto(JSONObject args) {
+	public JSONObject _fetchPhoto(JSONObject args) throws IllegalArgumentException {
 	    Log.e("_fetchPhoto", args.toString());
+    	JSONObject msg = new JSONObject();
 	    try {
 	    	if (snet.isValidPhotoProtocol(args, "photohash")) {
 				PhotoRecord photoHash = db.PHOTOTABLE.readOne(args.getInt("photohash"));
-				if (photoHash == null) {
-					// throw exception
-				}
 				
-				if (photoHash.file == null) {
-					// throw exception
-				}
+				if (photoHash == null)
+        			throw new IllegalArgumentException("Sorry, I do not have the photo you requested");
 				
-				String encodedData = Base64.encodeFromFile("");
+				if (photoHash.file == null)
+        			throw new IllegalArgumentException("Sorry, I do not have the photo you requested");
+				
+				String encodedData = Base64.encodeFromFile(photoHash.file.getAbsolutePath());
+				msg.put("photohash", photoHash.hash);
+				msg.put("photodata", encodedData);
+			} else {
+    			throw new IllegalArgumentException("Your fetchPhoto args does not follow the SNet protocol");
 			}
 	    } catch (DB461Exception e) {
-			e.printStackTrace();
+	    	Log.e("_fetchUpdates", e.getMessage());
+			throw new IllegalArgumentException("Sorry, an error has occurred at my part.");		
 		} catch (JSONException e) {
-			
+			Log.e("_fetchUpdates", e.getMessage());
+			throw new IllegalArgumentException("Sorry, an error has occurred at my part.");
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.e("_fetchUpdates", e.getMessage());
+			throw new IllegalArgumentException("Sorry, an error has occurred at my part.");		
 		}
-		return null;
+		return msg;
 	}
-	
 }

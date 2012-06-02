@@ -29,10 +29,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 public class UpdatePicPage extends Activity {
-    
-	private static final String PICTURE_FOLDER = "snet_pics/";
-	private static final File sdCard = Environment.getExternalStorageDirectory();
-    private static final File dir = new File (sdCard.getAbsolutePath() + "/" + PICTURE_FOLDER);
 	
     Spinner spinner;
     ArrayAdapter<String> adapter;
@@ -53,7 +49,7 @@ public class UpdatePicPage extends Activity {
     	try {
     		db = MDb.getInstance();
     	} catch (DB461Exception e) {
-    		System.out.println("error occurred while initializing the database");
+	        Toast.makeText(this, "An error occurred while initializing the database", Toast.LENGTH_SHORT).show();
 		} 
     	
         spinner = (Spinner) findViewById(R.id.spinner);
@@ -64,7 +60,7 @@ public class UpdatePicPage extends Activity {
 				adapter.add(record.name);
 			}
 		} catch (DB461Exception e) {
-			System.out.println("An error occurred while putting names into the spinner");
+	        Toast.makeText(this, "An error occurred while putting names into the spinner", Toast.LENGTH_SHORT).show();
 		}
         
         spinner.setAdapter(adapter);
@@ -104,16 +100,27 @@ public class UpdatePicPage extends Activity {
 	        
 	        fetchPhotos(response, callerSocket);
 	        
-        } catch (DB461Exception e) {
-			e.printStackTrace();
 		} catch (DDNSNoAddressException e) {
-			e.printStackTrace();
+	        Toast.makeText(this, friend + " is currently offline", Toast.LENGTH_SHORT).show();
 		} catch (DDNSNoSuchNameException e) {
-			e.printStackTrace();
-		} catch (JSONException e) {
-			e.printStackTrace();
+	        Toast.makeText(this, friend + " is not in the community", Toast.LENGTH_SHORT).show();
 		} catch (IOException e) {
-			e.printStackTrace();
+	        Toast.makeText(this, "Problem occurred while connecting to " + friend , Toast.LENGTH_SHORT).show();
+		} catch (JSONException e) {
+			if (e.getMessage().isEmpty()) {
+				Toast.makeText(this, "Problem occurred while reading the fetchupdate response from " + friend,
+	        		Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+			}
+		} catch (DB461Exception e) {
+			if (e.getMessage().isEmpty()) {
+				Toast.makeText(this, "Problem occurred while reading the db in contact", Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+			}
+		} catch (IllegalArgumentException e) {
+	        Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
 		}
     }
     
@@ -131,7 +138,7 @@ public class UpdatePicPage extends Activity {
 				db.PHOTOTABLE.delete(record.chosenPhotoHash);
 			
         } catch (DB461Exception e) {
-//			e.printStackTrace();
+	        Toast.makeText(this, "A problem occurred when unfriending " + friend, Toast.LENGTH_SHORT).show();
 		}
     }
     
@@ -145,6 +152,7 @@ public class UpdatePicPage extends Activity {
 	        Log.e("contact", "response: " + response);
 	        
 	        fetchUpdates(response);
+	        
 	        Log.e("contact", "community db: " + db.COMMUNITYTABLE);
 	        adapter.clear();
 	        for (CommunityRecord communityRecord: db.COMMUNITYTABLE.readAll()) {
@@ -155,33 +163,37 @@ public class UpdatePicPage extends Activity {
 	        
 		} catch (DDNSNoAddressException e) {
 	        Toast.makeText(this, contact + " is currently offline", Toast.LENGTH_SHORT).show();
-//			e.printStackTrace();
 		} catch (DDNSNoSuchNameException e) {
 	        Toast.makeText(this, contact + " is not in the community", Toast.LENGTH_SHORT).show();
-//			e.printStackTrace();
 		} catch (IOException e) {
 	        Toast.makeText(this, "Problem occurred while connecting to " + contact , Toast.LENGTH_SHORT).show();
-//			e.printStackTrace();
 		} catch (JSONException e) {
-	        Toast.makeText(this, "Problem occurred while reading the fetchupdate response from " + contact,
+			if (e.getMessage().isEmpty()) {
+				Toast.makeText(this, "Problem occurred while reading the fetchupdate response from " + contact,
 	        		Toast.LENGTH_SHORT).show();
-//			e.printStackTrace();
+			} else {
+				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+			}
 		} catch (DB461Exception e) {
-	        Toast.makeText(this, "Problem occurred while reading the db in contact", Toast.LENGTH_SHORT).show();
-//			e.printStackTrace();
+			if (e.getMessage().isEmpty()) {
+				Toast.makeText(this, "Problem occurred while reading the db in contact", Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+			}
+		} catch (IllegalArgumentException e) {
+	        Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
 		}
     }
     
     public void fixDb(View view){
         try {
-			db.checkAndFixDB(dir);
+			db.checkAndFixDB(snet.dir);
 		} catch (DB461Exception e) {
 	        Toast.makeText(this, "Problem occurred when fixDB", Toast.LENGTH_SHORT).show();
-//			e.printStackTrace();
 		}
     }
     
-    private void fetchUpdates(JSONObject response) throws JSONException, DB461Exception {
+    private void fetchUpdates(JSONObject response) throws JSONException, DB461Exception, IllegalArgumentException {
     	if (snet.isValidCommunityProtocol(response, "communityupdates", "photoupdates")) {
         	JSONObject communityupdates = response.getJSONObject("communityupdates");
 			Iterator<String> it = communityupdates.keys();
@@ -195,9 +207,9 @@ public class UpdatePicPage extends Activity {
         		
         		JSONObject receivedCommunityRecord = communityupdates.getJSONObject(name);
         		
-        		// TODO
         		if (!snet.isValidMemberField(receivedCommunityRecord))
-        			break;
+        			throw new IllegalArgumentException("memberField in the received " +
+        					"communityupdates does not follow the SNet protocol");
         		
         		if (receivedCommunityRecord.getInt("generation") >= communityRecord.generation) {
         			communityRecord.generation = receivedCommunityRecord.getInt("generation");
@@ -206,11 +218,13 @@ public class UpdatePicPage extends Activity {
         			db.COMMUNITYTABLE.write(communityRecord);
         		}
         	}
+        } else {
+        	throw new IllegalArgumentException("received message for fetchUpdates does not follow the SNet protocol");
         }
     }
     
     private void fetchPhotos(JSONObject response, RPCCallerSocket callerSocket) 
-    		throws IOException, JSONException, DB461Exception {
+    		throws IOException, JSONException, DB461Exception, IllegalArgumentException {
         if (snet.isValidPhotoProtocol(response, "photoupdates")) {
 	        JSONArray array = response.getJSONArray("photoupdates");
 	        for (int i = 0; i < array.length(); i++) {
@@ -219,10 +233,11 @@ public class UpdatePicPage extends Activity {
 	        	if (photoRecord == null || photoRecord.file == null) {
 	        		JSONObject photoRequest = snet.fetchPhotos(photo);
 	        		JSONObject photoResponse = callerSocket.invoke("snet", "fetchPhoto", photoRequest);
-	        		// TODO else case
+	        		
 	        		if (snet.isValidPhotoResponse(photo, photoResponse)) {
-	        			String photoPath = dir.getPath() + "/" + Integer.toString(photo) +".jpg";
+	        			String photoPath = snet.dir.getPath() + "/" + Integer.toString(photo) +".jpg";
 	        			Base64.decodeToFile(photoResponse.getString("photodata"), photoPath);
+	        			
         				File photoFile = new File(photoPath);
 	        			if (photoRecord == null) {
 	        				photoRecord = db.createPhotoRecord();
@@ -234,9 +249,14 @@ public class UpdatePicPage extends Activity {
 	        				photoRecord.refCount++;
 	        			}
 	        			db.PHOTOTABLE.write(photoRecord);
+	        		} else {
+	                	throw new IllegalArgumentException("received message for fetchPhoto does not follow the SNet protocol or the photo received" +
+	                			"is not the same as the photo requested");
 	        		}
 	        	}
 	        }
+        } else {
+        	throw new IllegalArgumentException("received message for fetchPhoto does not follow the SNet protocol");
         }
     }
 }
