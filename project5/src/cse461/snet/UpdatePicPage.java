@@ -181,29 +181,8 @@ public class UpdatePicPage extends Activity {
 		}
     }
     
-    private boolean isValidCommunityProtocol(JSONObject response) {
-    	return response.has("communityupdates") && response.has("photoupdates");
-    }
-    
-    private boolean isValidMemberField(JSONObject record) {
-    	return record.has("generation") && record.has("myphotohash") && record.has("chosenphotohash");
-    }
-    
-    private boolean isValidPhotoProtocol(JSONObject response) {
-    	return response.has("photoupdates");
-    }
-    
-    private boolean isValidPhotoResponse(int hash, JSONObject response) {
-    	try {
-			return response.has("photohash") && response.has("photodata") && response.getInt("photohash") == hash;
-		} catch (JSONException e) {
-			return false;
-//			e.printStackTrace();
-		}
-    }
-    
     private void fetchUpdates(JSONObject response) throws JSONException, DB461Exception {
-    	if (isValidCommunityProtocol(response)) {
+    	if (snet.isValidCommunityProtocol(response, "communityupdates", "photoupdates")) {
         	JSONObject communityupdates = response.getJSONObject("communityupdates");
 			Iterator<String> it = communityupdates.keys();
         	while (it.hasNext()) {
@@ -216,7 +195,8 @@ public class UpdatePicPage extends Activity {
         		
         		JSONObject receivedCommunityRecord = communityupdates.getJSONObject(name);
         		
-        		if (!isValidMemberField(receivedCommunityRecord))
+        		// TODO
+        		if (!snet.isValidMemberField(receivedCommunityRecord))
         			break;
         		
         		if (receivedCommunityRecord.getInt("generation") >= communityRecord.generation) {
@@ -231,7 +211,7 @@ public class UpdatePicPage extends Activity {
     
     private void fetchPhotos(JSONObject response, RPCCallerSocket callerSocket) 
     		throws IOException, JSONException, DB461Exception {
-        if (isValidPhotoProtocol(response)) {
+        if (snet.isValidPhotoProtocol(response, "photoupdates")) {
 	        JSONArray array = response.getJSONArray("photoupdates");
 	        for (int i = 0; i < array.length(); i++) {
 	        	int photo = array.getInt(i);
@@ -239,7 +219,8 @@ public class UpdatePicPage extends Activity {
 	        	if (photoRecord == null || photoRecord.file == null) {
 	        		JSONObject photoRequest = snet.fetchPhotos(photo);
 	        		JSONObject photoResponse = callerSocket.invoke("snet", "fetchPhoto", photoRequest);
-	        		if (isValidPhotoResponse(photo, photoResponse)) {
+	        		// TODO else case
+	        		if (snet.isValidPhotoResponse(photo, photoResponse)) {
 	        			String photoPath = dir.getPath() + "/" + Integer.toString(photo) +".jpg";
 	        			Base64.decodeToFile(photoResponse.getString("photodata"), photoPath);
         				File photoFile = new File(photoPath);

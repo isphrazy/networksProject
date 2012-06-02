@@ -57,4 +57,25 @@ public class SNetProtocol {
 		}
     	return fetchPhotosMessage;
     }
+    
+    public boolean isValidCommunityProtocol(JSONObject response, String community, String photo) {
+    	return response.has(community) && response.has(photo);
+    }
+    
+    public boolean isValidMemberField(JSONObject record) {
+    	return record.has("generation") && record.has("myphotohash") && record.has("chosenphotohash");
+    }
+    
+    public boolean isValidPhotoProtocol(JSONObject response, String photo) {
+    	return response.has(photo);
+    }
+    
+    public boolean isValidPhotoResponse(int hash, JSONObject response) {
+    	try {
+			return response.has("photohash") && response.has("photodata") && response.getInt("photohash") == hash;
+		} catch (JSONException e) {
+			return false;
+//			e.printStackTrace();
+		}
+    }
 }
