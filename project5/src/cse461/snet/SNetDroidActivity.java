@@ -70,15 +70,18 @@ public class SNetDroidActivity extends Activity {
     
     private void loadPics() {
         try {
-            CommunityRecord cr = db.COMMUNITYTABLE.readOne(OS.config().getProperty(HOST_NAME));
+            CommunityRecord cr = db.COMMUNITYTABLE.readOne(OS.config().getProperty("host.name"));
+            if (cr == null) Log.e("loadpics", "cr is null: ");
             if(cr.myPhotoHash != 0){
                 PhotoRecord pr = db.PHOTOTABLE.readOne(cr.myPhotoHash);
-                myPicIv.setImageBitmap(BitmapLoader.loadBitmap(pr.file.getPath(), PHOTO_WIDTH, PHOTO_HEIGHT));
+                if(pr != null)
+                	myPicIv.setImageBitmap(BitmapLoader.loadBitmap(pr.file.getPath(), PHOTO_WIDTH, PHOTO_HEIGHT));
             }
             
             if(cr.chosenPhotoHash != 0){
                 PhotoRecord pr = db.PHOTOTABLE.readOne(cr.chosenPhotoHash);
-                chosenPicIv.setImageBitmap(BitmapLoader.loadBitmap(pr.file.getPath(), PHOTO_WIDTH, PHOTO_HEIGHT));
+                if(pr != null)
+                	chosenPicIv.setImageBitmap(BitmapLoader.loadBitmap(pr.file.getPath(), PHOTO_WIDTH, PHOTO_HEIGHT));
             }
         } catch (DB461Exception e) {
             e.printStackTrace();
@@ -91,9 +94,13 @@ public class SNetDroidActivity extends Activity {
         chosenPicIv = (ImageView) findViewById(R.id.chosen_pic_iv);
         try {
             db = MDb.getInstance();
+            for (CommunityRecord r : db.COMMUNITYTABLE.readAll()) {
+                Log.e("db", "record: " + r.name);
+            }
         } catch (DB461Exception excp) {
             excp.printStackTrace();
         }
+        
         loadPics();
     }
 
@@ -144,7 +151,7 @@ public class SNetDroidActivity extends Activity {
             //update the database
             try {
                 
-                CommunityRecord mRec = db.COMMUNITYTABLE.readOne(OS.config().getProperty(HOST_NAME));
+                CommunityRecord mRec = db.COMMUNITYTABLE.readOne(OS.config().getProperty("host.name"));
 //                Log.e("onActivityResult", "hostname: " + mRec.name);
                 int myPHash = mRec.myPhotoHash;
                 mRec.generation++;
@@ -257,13 +264,17 @@ public class SNetDroidActivity extends Activity {
         startActivity(i);
     }
     
-//    /**
-//     * start OS
-//     */
-//    public void onStart(){
-//        super.onStart();
-//
-//    }
+    /**
+     * start OS
+     */
+    public void onStart(){
+        super.onStart();
+        try {
+			db = MDb.getInstance();
+		} catch (DB461Exception e) {
+			e.printStackTrace();
+		}
+    }
     
     /*
      * start OS
@@ -286,15 +297,6 @@ public class SNetDroidActivity extends Activity {
         OS.startServices(OS.snetServiceClasses);
     }
     
-    
-//    /**
-//     * shut the OS down
-//     */
-//    public void onStop(){
-//        super.onStop();
-//        Toast.makeText(this, "shut os down", Toast.LENGTH_SHORT).show();
-//        OS.shutdown();
-//    }
     
     public void onDestroy(){
         super.onDestroy();
