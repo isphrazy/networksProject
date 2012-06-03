@@ -52,7 +52,7 @@ import edu.uw.cs.cse461.sp12.OS.OS;
 
 public class SNetDB461 extends DB461SQLite {
 	private static final String TAG="SNetDB461";
-	private static final String DBFILENAME = new DDNSFullName(OS.hostname()) + "snet.db"; 
+	private static final String DBFILENAME = OS.hostname() + ".snet.db"; 
 	
 	//-----------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------
