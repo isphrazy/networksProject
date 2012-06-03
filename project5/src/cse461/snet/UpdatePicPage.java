@@ -69,7 +69,7 @@ public class UpdatePicPage extends Activity {
     }
 
 
-    public void beFriend(View view){
+    public void beFriend(View view) {
         Log.e("beFriend", "in");
         String friend = spinner.getSelectedItem().toString();
         try {
@@ -79,26 +79,30 @@ public class UpdatePicPage extends Activity {
 	        JSONObject fetchUpdate = snet.fetchUpdates();
 	        JSONObject response = callerSocket.invoke("snet", "fetchUpdates", fetchUpdate);
 	        
+	        if (response.has("msg")) {
+    			throw new IllegalArgumentException("Received an error msg" + response.getString("msg"));
+    		}
+	        
 	        fetchUpdates(response);
 	        
 	        CommunityRecord record = db.COMMUNITYTABLE.readOne(friend);
-            if (record.isFriend == false) {
+            if (record.isFriend == false)
                 record.isFriend = true;
-                db.COMMUNITYTABLE.write(record);
-                if (db.PHOTOTABLE.readOne(record.myPhotoHash) == null) {
-                    PhotoRecord myPhoto = db.PHOTOTABLE.createRecord();
-                    myPhoto.file = null;
-                    myPhoto.hash = record.myPhotoHash;
-                    myPhoto.refCount = 1;
-                    db.PHOTOTABLE.write(myPhoto);
-                }
-                if (db.PHOTOTABLE.readOne(record.chosenPhotoHash) == null) {
-                    PhotoRecord chosenPhoto = db.PHOTOTABLE.createRecord();
-                    chosenPhoto.file = null;
-                    chosenPhoto.hash = record.chosenPhotoHash;
-                    chosenPhoto.refCount = 1;
-                    db.PHOTOTABLE.write(chosenPhoto);
-                }
+            
+            db.COMMUNITYTABLE.write(record);
+            if (db.PHOTOTABLE.readOne(record.myPhotoHash) == null) {
+                PhotoRecord myPhoto = db.PHOTOTABLE.createRecord();
+                myPhoto.file = null;
+                myPhoto.hash = record.myPhotoHash;
+                myPhoto.refCount = 1;
+                db.PHOTOTABLE.write(myPhoto);
+            }
+            if (db.PHOTOTABLE.readOne(record.chosenPhotoHash) == null) {
+                PhotoRecord chosenPhoto = db.PHOTOTABLE.createRecord();
+                chosenPhoto.file = null;
+                chosenPhoto.hash = record.chosenPhotoHash;
+                chosenPhoto.refCount = 1;
+                db.PHOTOTABLE.write(chosenPhoto);
             }
             
 	        fetchPhotos(response, friend);
@@ -156,6 +160,11 @@ public class UpdatePicPage extends Activity {
 	        RPCCallerSocket callerSocket = new RPCCallerSocket(record.getIp(), record.getIp(), "" + record.getPort());
 	        JSONObject fetchUpdate = snet.fetchUpdates();
 	        JSONObject response = callerSocket.invoke("snet", "fetchUpdates", fetchUpdate);
+	        
+	        if (response.has("msg")) {
+    			throw new IllegalArgumentException("Received an error msg" + response.getString("msg"));
+    		}
+	        
 	        Log.e("contact", "response: " + response);
 	        
 	        fetchUpdates(response);
@@ -221,8 +230,38 @@ public class UpdatePicPage extends Activity {
         		
         		if (receivedCommunityRecord.getInt("generation") >= communityRecord.generation) {
         			communityRecord.generation = receivedCommunityRecord.getInt("generation");
-        			communityRecord.chosenPhotoHash = receivedCommunityRecord.getInt("chosenphotohash");
-        			communityRecord.myPhotoHash = receivedCommunityRecord.getInt("myphotohash");
+        			
+        			int chosenphotohash = receivedCommunityRecord.getInt("chosenphotohash");
+        			if (communityRecord.chosenPhotoHash != chosenphotohash) {
+        				PhotoRecord pRecord = db.PHOTOTABLE.readOne(chosenphotohash);
+        				if (pRecord != null ) {
+        					pRecord.refCount += 1;
+        					db.PHOTOTABLE.write(pRecord);
+        				}
+        				pRecord = db.PHOTOTABLE.readOne(communityRecord.chosenPhotoHash);
+        				if (pRecord != null ) {
+        					pRecord.refCount -= 1;
+        					if (pRecord.refCount < 0) pRecord.refCount = 0; 
+        					db.PHOTOTABLE.write(pRecord);
+        				}
+        			}
+        			communityRecord.chosenPhotoHash = chosenphotohash;
+        			
+        			int myphotohash = receivedCommunityRecord.getInt("myphotohash");
+        			if (communityRecord.myPhotoHash != myphotohash) {
+        				PhotoRecord pRecord = db.PHOTOTABLE.readOne(myphotohash);
+        				if (pRecord != null ) {
+        					pRecord.refCount += 1;
+        					db.PHOTOTABLE.write(pRecord);
+        				}
+        				pRecord = db.PHOTOTABLE.readOne(communityRecord.myPhotoHash);
+        				if (pRecord != null ) {
+        					pRecord.refCount -= 1;
+        					if (pRecord.refCount < 0) pRecord.refCount = 0; 
+        					db.PHOTOTABLE.write(pRecord);
+        				}
+        			}
+        			communityRecord.myPhotoHash = myphotohash;
         			db.COMMUNITYTABLE.write(communityRecord);
         		}
         	}
@@ -252,6 +291,11 @@ public class UpdatePicPage extends Activity {
 	                
 	        		JSONObject photoRequest = snet.fetchPhotos(photo);
 	        		JSONObject photoResponse = callerSocket.invoke("snet", "fetchPhoto", photoRequest);
+	        		
+	        		if (photoResponse.has("msg")) {
+	        			throw new IllegalArgumentException("Received an error msg" + photoResponse.getString("msg"));
+	        		}
+	        		
 	        		Log.e("fetchPhotos", "photoResponse: " + photoResponse.toString());
 	        		if (snet.isValidPhotoResponse(photo, photoResponse)) {
 	        			String photoPath = snet.dir.getAbsolutePath() + "/" + Integer.toString(photo) +".jpg";

@@ -62,11 +62,15 @@ public class SnetService extends RPCCallable {
 	        		String name = it.next().toString();
 	        		JSONObject member = community.getJSONObject(name);
 	        		
-	        		if (!snet.isValidMemberField(member)) {
+	        		if (!snet.isValidMemberField(member))
 	        			throw new IllegalArgumentException("memberField in the args does not follow the SNet protocol");
-	        		}
 	        		
 	        		CommunityRecord cRecord = db.COMMUNITYTABLE.readOne(name);
+	        		if (cRecord == null) {
+	        			cRecord = db.createCommunityRecord();
+	        			cRecord.name = name;
+	        		}
+	        		
 	        		if (cRecord.generation > member.getInt("generation")) {
 	        			JSONObject newerMember = new JSONObject();
 	        			newerMember.put("generation", cRecord.generation);
@@ -75,8 +79,21 @@ public class SnetService extends RPCCallable {
 	        			memberField.put(name, newerMember);
 	        		} else if (cRecord.generation < member.getInt("generation")) {
 	        			cRecord.generation = member.getInt("generation");
-	        			cRecord.myPhotoHash = member.getInt("myphotohash");
-	        			cRecord.chosenPhotoHash = member.getInt("chosenphotohash");
+	        			PhotoRecord pRecord = db.PHOTOTABLE.readOne(member.getInt("myphotohash"));
+	        			int myphotohash = member.getInt("myphotohash");
+	        			if (pRecord != null && cRecord.myPhotoHash != myphotohash) {
+	        				pRecord.refCount++;
+	        				db.PHOTOTABLE.write(pRecord);
+	        			}
+	        			cRecord.myPhotoHash = myphotohash;
+	        			
+	        			pRecord = db.PHOTOTABLE.readOne(member.getInt("chosenphotohash"));
+	        			int chosenphotohash = member.getInt("chosenphotohash");
+	        			if (pRecord != null && cRecord.chosenPhotoHash != chosenphotohash) {
+	        				pRecord.refCount++;
+	        				db.PHOTOTABLE.write(pRecord);
+	        			}
+	        			cRecord.chosenPhotoHash = chosenphotohash;
 	        			db.COMMUNITYTABLE.write(cRecord);
 	        		}
 	        	}
